@@ -149,7 +149,9 @@ class User extends BaseUser implements FilamentUser, HasAppAuthentication, HasAp
             'company_id' => $user->default_company_id,
             'user_id'    => $user->id,
             'sub_type'   => 'partner',
-            ...Arr::except($user->toArray(), ['id', 'partner_id', 'email_verified_at']),
+            'name'       => $user->name,
+            'email'      => $user->email,
+            'avatar'     => $user->avatar ?? null,
         ]);
 
         $user->partner_id = $partner->id;
@@ -165,7 +167,9 @@ class User extends BaseUser implements FilamentUser, HasAppAuthentication, HasAp
                 'company_id' => $user->default_company_id,
                 'user_id'    => $user->id,
                 'sub_type'   => 'partner',
-                ...Arr::except($user->toArray(), ['id', 'partner_id', 'email_verified_at']),
+                'name'       => $user->name,
+                'email'      => $user->email,
+                'avatar'     => $user->avatar ?? null,
             ]
         );
 
