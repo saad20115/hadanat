@@ -40,7 +40,7 @@ class BaraemSetupCommand extends Command
                 'id'         => 1,
                 'name'       => 'شركة براعم لخدمات رياض الأطفال والحضانات',
                 'email'      => 'info@hadanat.com',
-                'is_company' => true,
+                'account_type' => 'company',
                 'created_at' => now(),
                 'updated_at' => now(),
             ]);
