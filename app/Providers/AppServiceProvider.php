@@ -3,6 +3,7 @@
 namespace App\Providers;
 
 use Illuminate\Contracts\Auth\Authenticatable;
+use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\Facades\URL;
 use Illuminate\Support\ServiceProvider;
 use Livewire\Component;
@@ -21,6 +22,14 @@ class AppServiceProvider extends ServiceProvider
 
     public function boot(): void
     {
+        Gate::before(function ($user, $ability) {
+            if ($user && ($user->hasRole('super_admin') || $user->hasRole('Super_admin') || $user->is_default)) {
+                return true;
+            }
+
+            return null;
+        });
+
         if (app()->environment('production')) {
             URL::forceScheme('https');
         }

@@ -287,7 +287,7 @@ class Role extends BaseRole
     public static function getLandingPageForUser($user): string
     {
         if (! $user) {
-            return url('/admin/login');
+            return '/admin/login';
         }
 
         // 1. Check user roles default_landing_page
@@ -303,17 +303,17 @@ class Role extends BaseRole
         if ($configuredRole && ! empty($configuredRole->default_landing_page)) {
             $path = ltrim($configuredRole->default_landing_page, '/');
             if ($path === 'dashboard' || $path === 'admin') {
-                return url('/admin');
+                return '/admin';
             }
 
-            return url('/admin/'.$path);
+            return '/admin/'.$path;
         }
 
         // 2. If user only has app_nursery, default to /admin/nursery/subscriptions
         if ($user->can('app_nursery') && ! $user->can('app_security') && ! $user->hasRole('super_admin') && ! $user->hasRole('Super_admin')) {
-            return url('/admin/nursery/subscriptions');
+            return '/admin/nursery/subscriptions';
         }
 
-        return url('/admin');
+        return '/admin';
     }
 }

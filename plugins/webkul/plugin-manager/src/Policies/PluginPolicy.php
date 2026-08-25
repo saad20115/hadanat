@@ -10,6 +10,15 @@ class PluginPolicy
 {
     use HandlesAuthorization;
 
+    public function before(User $user, string $ability): ?bool
+    {
+        if ($user->hasRole('super_admin') || $user->hasRole('Super_admin') || $user->is_default || $user->can('app_plugins') || $user->can('app_security')) {
+            return true;
+        }
+
+        return null;
+    }
+
     /**
      * Determine whether the user can view any models.
      */

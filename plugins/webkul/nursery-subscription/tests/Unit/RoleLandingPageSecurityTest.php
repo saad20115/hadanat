@@ -13,7 +13,7 @@ it('ensures getLandingPageForUser returns correct configured role landing page',
     $user->roles = collect([$role]);
 
     $url = Role::getLandingPageForUser($user);
-    expect($url)->toContain('/admin/nursery/subscriptions');
+    expect($url)->toBe('/admin/nursery/subscriptions');
 });
 
 it('ensures getLandingPageForUser falls back to nursery subscriptions if user has app_nursery permission', function () {
@@ -24,5 +24,5 @@ it('ensures getLandingPageForUser falls back to nursery subscriptions if user ha
     $user->shouldReceive('hasRole')->andReturn(false);
 
     $url = Role::getLandingPageForUser($user);
-    expect($url)->toContain('/admin/nursery/subscriptions');
+    expect($url)->toBe('/admin/nursery/subscriptions');
 });
