@@ -8,6 +8,7 @@ use Filament\Resources\Pages\CreateRecord;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Auth;
 use Webkul\NurserySubscription\Filament\Admin\Resources\NurseryUserResource;
+use Webkul\Support\Services\CompanyContext;
 
 class CreateNurseryUser extends CreateRecord
 {
@@ -15,9 +16,16 @@ class CreateNurseryUser extends CreateRecord
 
     protected function handleRecordCreation(array $data): Model
     {
-        $data['default_company_id'] = Auth::user()?->default_company_id ?? 2;
+        $companyId = app(CompanyContext::class)->currentId() ?? Auth::user()?->default_company_id ?? 1;
+        $data['default_company_id'] = $companyId;
 
-        return parent::handleRecordCreation($data);
+        $record = parent::handleRecordCreation($data);
+
+        if (method_exists($record, 'allowedCompanies')) {
+            $record->allowedCompanies()->syncWithoutDetaching([$companyId]);
+        }
+
+        return $record;
     }
 
     protected function getRedirectUrl(): string

@@ -22,13 +22,13 @@ enum DurationType: string
      */
     public function label(): string
     {
-        return match($this) {
-            self::HOURLY => 'بالساعة',
-            self::DAILY => 'يومي',
-            self::WEEKLY => 'أسبوعي',
-            self::MONTHLY => 'شهري',
-            self::TERM => 'فصل دراسي',
-            self::YEARLY => 'سنوي',
+        return match ($this) {
+            self::HOURLY        => 'بالساعة',
+            self::DAILY         => 'يومي',
+            self::WEEKLY        => 'أسبوعي',
+            self::MONTHLY       => 'شهري',
+            self::TERM          => 'فصل دراسي',
+            self::YEARLY        => 'سنوي',
             self::VISIT_PACKAGE => 'باقة زيارات',
         };
     }

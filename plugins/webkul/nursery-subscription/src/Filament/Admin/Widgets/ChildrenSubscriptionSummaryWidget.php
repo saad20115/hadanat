@@ -10,18 +10,19 @@ use Illuminate\Support\Facades\Auth;
 use Webkul\NurserySubscription\Models\AgeStageRule;
 use Webkul\NurserySubscription\Models\Child;
 use Webkul\NurserySubscription\Models\Subscription;
+use Webkul\Support\Services\CompanyContext;
 
 class ChildrenSubscriptionSummaryWidget extends Widget
 {
     protected static ?int $sort = 2;
 
-    protected int | string | array $columnSpan = 'full';
+    protected int|string|array $columnSpan = 'full';
 
     protected string $view = 'nursery-subscription::filament.admin.widgets.children-subscription-summary';
 
     public function getViewData(): array
     {
-        $companyId = Auth::user()?->default_company_id ?? 2;
+        $companyId = app(CompanyContext::class)->currentId() ?? Auth::user()?->default_company_id ?? 1;
         $today = Carbon::today();
 
         // Dynamically fetch age stage settings configured for this company
@@ -47,6 +48,7 @@ class ChildrenSubscriptionSummaryWidget extends Widget
                     return false;
                 }
                 $months = (int) Carbon::parse($child->birth_date)->diffInMonths($today);
+
                 return $rule->matchesMonths($months);
             });
 
@@ -66,17 +68,17 @@ class ChildrenSubscriptionSummaryWidget extends Widget
             $subRemaining = (float) $subscriptions->sum('remaining_amount');
 
             $rows[] = [
-                'rule_id' => $rule->id,
-                'section' => $rule->name,
-                'age_bracket' => $rule->age_range_label,
-                'description' => $rule->description,
-                'children_count' => $childrenCount,
-                'active_count' => $activeCount,
+                'rule_id'             => $rule->id,
+                'section'             => $rule->name,
+                'age_bracket'         => $rule->age_range_label,
+                'description'         => $rule->description,
+                'children_count'      => $childrenCount,
+                'active_count'        => $activeCount,
                 'expiring_soon_count' => $expiringSoonCount,
-                'expired_count' => $expiredCount,
-                'total_amount' => $subAmount,
-                'remaining_amount' => $subRemaining,
-                'is_total' => false,
+                'expired_count'       => $expiredCount,
+                'total_amount'        => $subAmount,
+                'remaining_amount'    => $subRemaining,
+                'is_total'            => false,
             ];
 
             $totalChildren += $childrenCount;
@@ -104,17 +106,17 @@ class ChildrenSubscriptionSummaryWidget extends Widget
             $uRemaining = (float) $uSubs->sum('remaining_amount');
 
             $rows[] = [
-                'rule_id' => null,
-                'section' => 'أخرى (غير مصنف)',
-                'age_bracket' => 'خارج النطاقات المعرفة',
-                'description' => 'أعمار غير مطابقة لإعدادات الفئات الحالية',
-                'children_count' => $unclassifiedCount,
-                'active_count' => $uActive,
+                'rule_id'             => null,
+                'section'             => 'أخرى (غير مصنف)',
+                'age_bracket'         => 'خارج النطاقات المعرفة',
+                'description'         => 'أعمار غير مطابقة لإعدادات الفئات الحالية',
+                'children_count'      => $unclassifiedCount,
+                'active_count'        => $uActive,
                 'expiring_soon_count' => $uExpSoon,
-                'expired_count' => $uExp,
-                'total_amount' => $uAmount,
-                'remaining_amount' => $uRemaining,
-                'is_total' => false,
+                'expired_count'       => $uExp,
+                'total_amount'        => $uAmount,
+                'remaining_amount'    => $uRemaining,
+                'is_total'            => false,
             ];
 
             $totalChildren += $unclassifiedCount;
@@ -127,21 +129,21 @@ class ChildrenSubscriptionSummaryWidget extends Widget
 
         // Add Totals row
         $rows[] = [
-            'rule_id' => null,
-            'section' => 'الإجمالي',
-            'age_bracket' => 'كافة الأقسام والفئات',
-            'description' => 'إجمالي الحضانة بالكامل',
-            'children_count' => $totalChildren,
-            'active_count' => $totalActive,
+            'rule_id'             => null,
+            'section'             => 'الإجمالي',
+            'age_bracket'         => 'كافة الأقسام والفئات',
+            'description'         => 'إجمالي الحضانة بالكامل',
+            'children_count'      => $totalChildren,
+            'active_count'        => $totalActive,
             'expiring_soon_count' => $totalExpiringSoon,
-            'expired_count' => $totalExpired,
-            'total_amount' => $totalAmount,
-            'remaining_amount' => $totalRemaining,
-            'is_total' => true,
+            'expired_count'       => $totalExpired,
+            'total_amount'        => $totalAmount,
+            'remaining_amount'    => $totalRemaining,
+            'is_total'            => true,
         ];
 
         return [
-            'rows' => $rows,
+            'rows'       => $rows,
             'rulesCount' => $ageRules->count(),
         ];
     }

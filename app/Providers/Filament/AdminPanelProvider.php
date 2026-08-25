@@ -3,6 +3,7 @@
 namespace App\Providers\Filament;
 
 use App\Http\Middleware\ApplyBrandSettings;
+use App\Http\Middleware\RedirectToRoleLandingPage;
 use App\Http\Middleware\SetLocale;
 use BezhanSalleh\FilamentShield\FilamentShieldPlugin;
 use Filament\Actions\Action;
@@ -22,11 +23,14 @@ use Illuminate\Routing\Middleware\SubstituteBindings;
 use Illuminate\Session\Middleware\AuthenticateSession;
 use Illuminate\Session\Middleware\StartSession;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\View\Middleware\ShareErrorsFromSession;
 use LaraZeus\SpatieTranslatable\SpatieTranslatablePlugin;
+use Webkul\Security\Models\Role;
 use Webkul\Support\Enums\NavigationGroup;
 use Webkul\Support\Filament\Pages\Profile;
 use Webkul\Support\GlobalSearchProvider;
+use Webkul\Support\Services\CompanyContext;
 
 class AdminPanelProvider extends PanelProvider
 {
@@ -40,8 +44,40 @@ class AdminPanelProvider extends PanelProvider
             ->path('admin')
             ->login()
             ->favicon(asset('images/favicon.ico'))
-            ->brandLogo(asset('images/logo.svg'))
-            ->brandLogoHeight('2rem')
+            ->brandLogo(function () {
+                try {
+                    $company = app(CompanyContext::class)->currentCompany();
+                    if ($company?->partner?->avatar && Storage::disk('public')->exists($company->partner->avatar)) {
+                        return Storage::disk('public')->url($company->partner->avatar);
+                    }
+                } catch (\Throwable) {
+                }
+
+                return asset('images/logo.svg');
+            })
+            ->darkModeBrandLogo(function () {
+                try {
+                    $company = app(CompanyContext::class)->currentCompany();
+                    if ($company?->partner?->avatar && Storage::disk('public')->exists($company->partner->avatar)) {
+                        return Storage::disk('public')->url($company->partner->avatar);
+                    }
+                } catch (\Throwable) {
+                }
+
+                return asset('images/logo.svg');
+            })
+            ->brandName(function () {
+                try {
+                    $company = app(CompanyContext::class)->currentCompany();
+                    if (! empty($company?->name)) {
+                        return $company->name;
+                    }
+                } catch (\Throwable) {
+                }
+
+                return config('app.name', 'Hadanat ERP');
+            })
+            ->brandLogoHeight('3.5rem')
             ->passwordReset()
             ->emailVerification()
             ->profile()
@@ -103,8 +139,10 @@ class AdminPanelProvider extends PanelProvider
                 SetLocale::class,
                 ApplyBrandSettings::class,
             ])
+            ->homeUrl(fn () => Role::getLandingPageForUser(Auth::user()))
             ->authMiddleware([
                 Authenticate::class,
+                RedirectToRoleLandingPage::class,
             ])
             ->multiFactorAuthentication([
                 AppAuthentication::make()

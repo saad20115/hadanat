@@ -31,12 +31,14 @@ trait HasFilamentDefaults
                     <x-filament::dropdown.list.item>
                         <div class="flex items-center gap-2">
                             <img
-                                src="{{ url('cache/logo.png') }}"
-                                width="24"
-                                height="24"
+                                src="{{ asset('images/logo.svg') }}"
+                                class="h-6 w-6 object-contain rounded-md"
+                                alt="Baraem Logo"
                             />
 
-                            {{ __('support::support.version', ['version' => $version]) }}
+                            <span class="font-medium text-xs text-gray-700 dark:text-gray-200">
+                                {{ __('support::support.version', ['version' => $version]) }}
+                            </span>
                         </div>
                     </x-filament::dropdown.list.item>
                 </x-filament::dropdown.list>

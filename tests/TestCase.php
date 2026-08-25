@@ -12,6 +12,10 @@ abstract class TestCase extends BaseTestCase
             $this->refreshApplication();
         }
 
+        if (! class_exists('TestBootstrapHelper')) {
+            require_once base_path('plugins/webkul/support/tests/Helpers/TestBootstrapHelper.php');
+        }
+
         \TestBootstrapHelper::ensureERPInstalled();
 
         parent::setUp();

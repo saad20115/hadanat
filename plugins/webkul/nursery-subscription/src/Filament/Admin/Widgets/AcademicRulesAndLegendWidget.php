@@ -8,32 +8,39 @@ use Filament\Notifications\Notification;
 use Filament\Widgets\Widget;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
+use Webkul\Support\Services\CompanyContext;
 
 class AcademicRulesAndLegendWidget extends Widget
 {
     protected static ?int $sort = 2;
 
-    protected int | string | array $columnSpan = 'full';
+    protected int|string|array $columnSpan = 'full';
 
     protected string $view = 'nursery-subscription::filament.admin.widgets.academic-rules-and-legend';
 
     public string $term1_start = '08-30';
+
     public string $term1_end = '01-07';
 
     public string $term2_start = '01-17';
+
     public string $term2_end = '07-01';
 
     public string $yearly_start = '08-30';
+
     public string $yearly_end = '07-01';
 
     public int $expiring_soon_days = 7;
+
     public float $sibling_discount_pct = 5.00;
+
     public float $tshirt_price = 75.00;
+
     public string $paid_status_label = 'كامل';
 
     public function mount(): void
     {
-        $companyId = Auth::user()?->default_company_id ?? 2;
+        $companyId = app(CompanyContext::class)->currentId() ?? Auth::user()?->default_company_id ?? 1;
 
         $saved = DB::table('settings')
             ->where('group', 'nursery_academic')
@@ -75,31 +82,31 @@ class AcademicRulesAndLegendWidget extends Widget
 
     public function saveSettings(): void
     {
-        $companyId = Auth::user()?->default_company_id ?? 2;
+        $companyId = app(CompanyContext::class)->currentId() ?? Auth::user()?->default_company_id ?? 1;
 
         $data = [
-            'term1_start' => $this->term1_start,
-            'term1_end' => $this->term1_end,
-            'term2_start' => $this->term2_start,
-            'term2_end' => $this->term2_end,
-            'yearly_start' => $this->yearly_start,
-            'yearly_end' => $this->yearly_end,
-            'expiring_soon_days' => $this->expiring_soon_days,
+            'term1_start'          => $this->term1_start,
+            'term1_end'            => $this->term1_end,
+            'term2_start'          => $this->term2_start,
+            'term2_end'            => $this->term2_end,
+            'yearly_start'         => $this->yearly_start,
+            'yearly_end'           => $this->yearly_end,
+            'expiring_soon_days'   => $this->expiring_soon_days,
             'sibling_discount_pct' => $this->sibling_discount_pct,
-            'tshirt_price' => $this->tshirt_price,
-            'paid_status_label' => $this->paid_status_label,
+            'tshirt_price'         => $this->tshirt_price,
+            'paid_status_label'    => $this->paid_status_label,
         ];
 
         foreach ($data as $key => $value) {
             DB::table('settings')->updateOrInsert(
                 [
-                    'group' => 'nursery_academic',
-                    'name' => $key,
+                    'group'      => 'nursery_academic',
+                    'name'       => $key,
                     'company_id' => $companyId,
                 ],
                 [
-                    'locked' => false,
-                    'payload' => json_encode($value),
+                    'locked'     => false,
+                    'payload'    => json_encode($value),
                     'updated_at' => now(),
                 ]
             );

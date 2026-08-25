@@ -20,5 +20,6 @@ return [
         'setting'       => 'Settings',
         'help'          => 'Help',
         'barcode'       => 'Barcode',
+        'nursery'       => 'Baraem',
     ],
 ];

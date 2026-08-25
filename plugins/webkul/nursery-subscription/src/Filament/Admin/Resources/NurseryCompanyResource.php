@@ -18,9 +18,13 @@ use Webkul\Support\Models\Company;
 class NurseryCompanyResource extends Resource
 {
     protected static ?string $model = Company::class;
+
     protected static ?string $slug = 'company';
+
     protected static ?string $cluster = Configurations::class;
-    protected static string | \BackedEnum | null $navigationIcon = 'heroicon-o-building-office-2';
+
+    protected static string|\BackedEnum|null $navigationIcon = 'heroicon-o-building-office-2';
+
     protected static ?int $navigationSort = 1;
 
     public static function getModelLabel(): string
@@ -134,7 +138,7 @@ class NurseryCompanyResource extends Resource
     {
         return [
             'index' => Pages\ListNurseryCompanies::route('/'),
-            'edit' => Pages\EditNurseryCompany::route('/{record}/edit'),
+            'edit'  => Pages\EditNurseryCompany::route('/{record}/edit'),
         ];
     }
 }

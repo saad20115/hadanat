@@ -15,11 +15,14 @@ use Filament\Schemas\Components\Utilities\Set;
 use Filament\Schemas\Schema;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Hash;
 use Illuminate\Validation\ValidationException;
 use Webkul\Security\Enums\PermissionType;
 use Webkul\Security\Filament\Resources\CompanyResource;
 use Webkul\Security\Filament\Resources\TeamResource;
 use Webkul\Security\Filament\Resources\UserResource;
+use Webkul\Security\Filament\Resources\UserResource\Pages\CreateUser;
+use Webkul\Security\Filament\Resources\UserResource\Pages\EditUser;
 use Webkul\Security\Models\User;
 use Webkul\Support\Models\Company;
 use Webkul\Support\Models\Scopes\AllowedCompanyScope;
@@ -50,17 +53,19 @@ class UserForm
                                         TextInput::make('password')
                                             ->label(__('security::filament/resources/user.form.sections.general-information.fields.password'))
                                             ->password()
-                                            ->required()
-                                            ->revealable(filament()->arePasswordsRevealable())
-                                            ->hiddenOn('edit')
+                                            ->revealable()
+                                            ->dehydrateStateUsing(fn ($state) => filled($state) ? Hash::make($state) : null)
+                                            ->dehydrated(fn ($state) => filled($state))
+                                            ->required(fn ($livewire) => $livewire instanceof CreateUser)
+                                            ->helperText(fn ($livewire) => $livewire instanceof EditUser ? 'اتركه فارغاً إذا كنت لا ترغب بتغيير كلمة المرور الحالية' : null)
                                             ->maxLength(255)
-                                            ->rule('min:8'),
+                                            ->rule('min:6'),
                                         TextInput::make('password_confirmation')
                                             ->label(__('security::filament/resources/user.form.sections.general-information.fields.password-confirmation'))
                                             ->password()
-                                            ->revealable(filament()->arePasswordsRevealable())
-                                            ->hiddenOn('edit')
-                                            ->rule('required', fn ($get) => (bool) $get('password'))
+                                            ->revealable()
+                                            ->dehydrated(false)
+                                            ->required(fn ($get, $livewire) => (bool) ($livewire instanceof CreateUser || filled($get('password'))))
                                             ->same('password'),
                                     ])
                                     ->columns(2),

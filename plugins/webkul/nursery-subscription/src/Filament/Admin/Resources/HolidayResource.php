@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Webkul\NurserySubscription\Filament\Admin\Resources;
 
+use Carbon\Carbon;
 use Filament\Actions\DeleteAction;
 use Filament\Actions\EditAction;
 use Filament\Forms\Components\DatePicker;
@@ -24,9 +25,13 @@ use Webkul\NurserySubscription\Models\Holiday;
 class HolidayResource extends Resource
 {
     protected static ?string $model = Holiday::class;
+
     protected static ?string $slug = 'holidays';
+
     protected static ?string $cluster = Configurations::class;
-    protected static string | \BackedEnum | null $navigationIcon = 'heroicon-o-sun';
+
+    protected static string|\BackedEnum|null $navigationIcon = 'heroicon-o-sun';
+
     protected static ?int $navigationSort = 4;
 
     public static function getModelLabel(): string
@@ -71,8 +76,8 @@ class HolidayResource extends Resource
                             ->reactive()
                             ->afterStateUpdated(function ($state, $get, $set) {
                                 if ($state && $get('end_date')) {
-                                    $start = \Carbon\Carbon::parse($state);
-                                    $end = \Carbon\Carbon::parse($get('end_date'));
+                                    $start = Carbon::parse($state);
+                                    $end = Carbon::parse($get('end_date'));
                                     $set('days_count', max(1, $start->diffInDays($end) + 1));
                                 }
                             }),
@@ -83,8 +88,8 @@ class HolidayResource extends Resource
                             ->reactive()
                             ->afterStateUpdated(function ($state, $get, $set) {
                                 if ($state && $get('start_date')) {
-                                    $start = \Carbon\Carbon::parse($get('start_date'));
-                                    $end = \Carbon\Carbon::parse($state);
+                                    $start = Carbon::parse($get('start_date'));
+                                    $end = Carbon::parse($state);
                                     $set('days_count', max(1, $start->diffInDays($end) + 1));
                                 }
                             }),
@@ -153,9 +158,9 @@ class HolidayResource extends Resource
     public static function getPages(): array
     {
         return [
-            'index' => Pages\ListHolidays::route('/'),
+            'index'  => Pages\ListHolidays::route('/'),
             'create' => Pages\CreateHoliday::route('/create'),
-            'edit' => Pages\EditHoliday::route('/{record}/edit'),
+            'edit'   => Pages\EditHoliday::route('/{record}/edit'),
         ];
     }
 }

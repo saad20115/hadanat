@@ -11,6 +11,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 use Symfony\Component\HttpFoundation\Response;
 use Throwable;
+use Webkul\Support\Services\CompanyContext;
 use Webkul\Support\Settings\BrandSettings;
 
 class ApplyBrandSettings
@@ -85,20 +86,31 @@ class ApplyBrandSettings
                 FilamentColor::register($brandColors);
             }
 
-            if (! empty($brand->light_logo)) {
-                $panel->brandLogo($this->assetUrl($brand->light_logo));
-            }
+            $company = app(CompanyContext::class)->currentCompany();
+            $companyLogo = $company?->partner?->avatar;
 
-            if (! empty($brand->dark_logo)) {
-                $panel->darkModeBrandLogo($this->assetUrl($brand->dark_logo));
+            if (! empty($companyLogo) && Storage::disk('public')->exists($companyLogo)) {
+                $logoUrl = Storage::disk('public')->url($companyLogo);
+                $panel->brandLogo($logoUrl);
+                $panel->darkModeBrandLogo($logoUrl);
+                $panel->brandName($company->name);
+                $panel->brandLogoHeight('2.5rem');
+            } else {
+                if (! empty($brand->light_logo)) {
+                    $panel->brandLogo($this->assetUrl($brand->light_logo));
+                }
+
+                if (! empty($brand->dark_logo)) {
+                    $panel->darkModeBrandLogo($this->assetUrl($brand->dark_logo));
+                }
+
+                if (! empty($brand->logo_height)) {
+                    $panel->brandLogoHeight($brand->logo_height);
+                }
             }
 
             if (! empty($brand->favicon)) {
                 $panel->favicon($this->assetUrl($brand->favicon));
-            }
-
-            if (! empty($brand->logo_height)) {
-                $panel->brandLogoHeight($brand->logo_height);
             }
         } catch (Throwable) {
         }

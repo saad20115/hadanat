@@ -16,6 +16,7 @@ use Filament\Tables\Columns\IconColumn;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Table;
 use Illuminate\Support\Facades\Auth;
+use Webkul\Support\Services\CompanyContext;
 
 class TermsRelationManager extends RelationManager
 {
@@ -75,8 +76,10 @@ class TermsRelationManager extends RelationManager
                         if ($record->start_date && $record->end_date) {
                             $days = $record->start_date->diffInDays($record->end_date);
                             $weeks = ceil($days / 7);
+
                             return "{$days} يوماً ({$weeks} أسبوع)";
                         }
+
                         return '-';
                     })
                     ->badge()
@@ -91,7 +94,8 @@ class TermsRelationManager extends RelationManager
                     ->label('إضافة فصل دراسي جديد')
                     ->icon('heroicon-o-plus-circle')
                     ->mutateFormDataUsing(function (array $data): array {
-                        $data['company_id'] = Auth::user()?->default_company_id ?? 2;
+                        $data['company_id'] = app(CompanyContext::class)->currentId() ?? Auth::user()?->default_company_id ?? 1;
+
                         return $data;
                     }),
             ])

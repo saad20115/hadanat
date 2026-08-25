@@ -21,10 +21,10 @@ enum AgeStage: string
      */
     public function label(): string
     {
-        return match($this) {
-            self::INFANT => 'الرضع',
+        return match ($this) {
+            self::INFANT  => 'الرضع',
             self::TODDLER => 'البراعم',
-            self::KG => 'رياض الأطفال',
+            self::KG      => 'رياض الأطفال',
         };
     }
 
@@ -33,18 +33,16 @@ enum AgeStage: string
      */
     public function ageRange(): string
     {
-        return match($this) {
-            self::INFANT => '6-18 months',
+        return match ($this) {
+            self::INFANT  => '6-18 months',
             self::TODDLER => '18 months - 3 years',
-            self::KG => '3-6 years',
+            self::KG      => '3-6 years',
         };
     }
 
     /**
      * Calculate the age stage from a given birth date.
      *
-     * @param Carbon $birthDate
-     * @return self
      * @throws InvalidArgumentException
      */
     public static function fromBirthDate(Carbon $birthDate): self
@@ -63,6 +61,6 @@ enum AgeStage: string
             return self::KG;
         }
 
-        throw new InvalidArgumentException("Birth date is outside the accepted nursery age ranges.");
+        throw new InvalidArgumentException('Birth date is outside the accepted nursery age ranges.');
     }
 }

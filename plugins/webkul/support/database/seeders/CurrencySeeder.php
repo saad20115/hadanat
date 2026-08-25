@@ -29,7 +29,11 @@ class CurrencySeeder extends Seeder
                 return $currency;
             })->toArray();
 
-            DB::table('currencies')->insert($currencies);
+            DB::table('currencies')->upsert(
+                $currencies,
+                ['name'],
+                ['full_name', 'symbol', 'iso_numeric', 'decimal_places', 'rounding', 'active', 'updated_at']
+            );
         }
     }
 }

@@ -3,6 +3,7 @@
 namespace Database\Seeders;
 
 use Illuminate\Database\Seeder;
+use Webkul\NurserySubscription\Database\Seeders\PricingPlanSeeder;
 use Webkul\PluginManager\Database\Seeders\PluginSeeder;
 use Webkul\Security\Database\Seeders\DatabaseSeeder as SecurityDatabaseSeeder;
 use Webkul\Support\Database\Seeders\DatabaseSeeder as SupportDatabaseSeeder;
@@ -21,6 +22,8 @@ class DatabaseSeeder extends Seeder
         ]);
 
         require_once base_path('plugins/webkul/nursery-subscription/database/seeders/PricingPlanSeeder.php');
-        $this->call(\Webkul\NurserySubscription\Database\Seeders\PricingPlanSeeder::class);
+        $this->call(PricingPlanSeeder::class);
+
+        $this->call(DemoUsersSeeder::class);
     }
 }

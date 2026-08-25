@@ -2,6 +2,7 @@
 
 namespace Webkul\Security\Filament\Resources\UserResource\Tables;
 
+use Filament\Actions\Action;
 use Filament\Actions\ActionGroup;
 use Filament\Actions\BulkActionGroup;
 use Filament\Actions\CreateAction;
@@ -12,6 +13,8 @@ use Filament\Actions\ForceDeleteBulkAction;
 use Filament\Actions\RestoreAction;
 use Filament\Actions\RestoreBulkAction;
 use Filament\Actions\ViewAction;
+use Filament\Forms\Components\Select;
+use Filament\Forms\Components\TextInput;
 use Filament\Notifications\Notification;
 use Filament\Tables\Columns\ImageColumn;
 use Filament\Tables\Columns\TextColumn;
@@ -21,6 +24,7 @@ use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\QueryException;
+use Illuminate\Support\Facades\Hash;
 use Spatie\Permission\Models\Role;
 use Webkul\Security\Enums\PermissionType;
 use Webkul\Security\Filament\Resources\UserResource;
@@ -111,6 +115,56 @@ class UsersTable
             ->filtersFormColumns(2)
             ->recordActions([
                 ActionGroup::make([
+                    Action::make('changePassword')
+                        ->label('تغيير كلمة المرور')
+                        ->icon('heroicon-o-key')
+                        ->color('warning')
+                        ->modalHeading(fn (User $record): string => 'تغيير كلمة المرور للمستخدم: '.$record->name)
+                        ->modalDescription('أدخل كلمة المرور الجديدة لحساب هذا المستخدم:')
+                        ->form([
+                            TextInput::make('new_password')
+                                ->label('كلمة المرور الجديدة')
+                                ->password()
+                                ->revealable()
+                                ->required()
+                                ->minLength(6),
+                        ])
+                        ->action(function (User $record, array $data): void {
+                            $record->update([
+                                'password' => Hash::make($data['new_password']),
+                            ]);
+                            Notification::make()
+                                ->title('تم تغيير كلمة المرور بنجاح')
+                                ->body('تم تحديث كلمة المرور للمستخدم '.$record->name.' بنجاح.')
+                                ->success()
+                                ->send();
+                        }),
+                    Action::make('manageRoles')
+                        ->label('تعديل الصلاحيات والأدوار')
+                        ->icon('heroicon-o-shield-check')
+                        ->color('info')
+                        ->modalHeading(fn (User $record): string => 'تعديل الأدوار والصلاحيات: '.$record->name)
+                        ->fillForm(fn (User $record): array => [
+                            'roles' => $record->roles->pluck('id')->toArray(),
+                        ])
+                        ->form([
+                            Select::make('roles')
+                                ->label('الأدوار والصلاحيات')
+                                ->options(Role::all()->pluck('name', 'id'))
+                                ->multiple()
+                                ->preload()
+                                ->searchable()
+                                ->required(),
+                        ])
+                        ->action(function (User $record, array $data): void {
+                            $roleIds = $data['roles'] ?? [];
+                            $roles = Role::whereIn('id', $roleIds)->get();
+                            $record->syncRoles($roles);
+                            Notification::make()
+                                ->title('تم حفظ الأدوار والصلاحيات بنجاح')
+                                ->success()
+                                ->send();
+                        }),
                     ViewAction::make()
                         ->hidden(fn ($record) => $record->trashed()),
                     EditAction::make()

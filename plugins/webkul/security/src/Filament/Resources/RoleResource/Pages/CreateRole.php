@@ -38,8 +38,9 @@ class CreateRole extends CreateRecord
         }
 
         return [
-            'name'       => $data['name'],
-            'guard_name' => $data['guard_name'] ?? Utils::getFilamentAuthGuard(),
+            'name'                 => $data['name'],
+            'guard_name'           => $data['guard_name'] ?? Utils::getFilamentAuthGuard(),
+            'default_landing_page' => $data['default_landing_page'] ?? null,
         ];
     }
 
@@ -58,6 +59,7 @@ class CreateRole extends CreateRecord
             ->only(array_filter([
                 'name',
                 'guard_name',
+                'default_landing_page',
                 'select_all',
                 'permissions_sync_mode',
                 $teamKey,

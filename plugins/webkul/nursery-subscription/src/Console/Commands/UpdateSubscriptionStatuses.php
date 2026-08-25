@@ -31,7 +31,7 @@ class UpdateSubscriptionStatuses extends Command
     public function handle(): int
     {
         $today = Carbon::today()->format('Y-m-d');
-        
+
         $this->info("Updating subscription statuses for {$today}...");
 
         $newToActive = 0;
@@ -86,7 +86,7 @@ class UpdateSubscriptionStatuses extends Command
                 }
             });
 
-        $this->info("Status update complete.");
+        $this->info('Status update complete.');
         $this->table(
             ['Transition', 'Count'],
             [

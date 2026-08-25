@@ -11,7 +11,7 @@ class Configurations extends Cluster
 {
     protected static ?string $slug = 'nursery/configurations';
 
-    protected static string | \BackedEnum | null $navigationIcon = 'heroicon-o-cog-6-tooth';
+    protected static string|\BackedEnum|null $navigationIcon = 'heroicon-o-cog-6-tooth';
 
     protected static ?int $navigationSort = 7;
 

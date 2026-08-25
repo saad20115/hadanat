@@ -6,26 +6,31 @@ namespace Webkul\NurserySubscription;
 
 use Filament\Panel;
 use Illuminate\Support\Facades\Gate;
+use Webkul\NurserySubscription\Console\Commands\UpdateSubscriptionStatuses;
+use Webkul\NurserySubscription\Models\AcademicYear;
+use Webkul\NurserySubscription\Models\AgeStageRule;
+use Webkul\NurserySubscription\Models\Child;
+use Webkul\NurserySubscription\Models\Holiday;
+use Webkul\NurserySubscription\Models\Payment;
+use Webkul\NurserySubscription\Models\PricingPlan;
+use Webkul\NurserySubscription\Models\Subscription;
+use Webkul\NurserySubscription\Policies\AcademicYearPolicy;
+use Webkul\NurserySubscription\Policies\AgeStageRulePolicy;
+use Webkul\NurserySubscription\Policies\ChildPolicy;
+use Webkul\NurserySubscription\Policies\HolidayPolicy;
+use Webkul\NurserySubscription\Policies\PaymentPolicy;
+use Webkul\NurserySubscription\Policies\PricingPlanPolicy;
+use Webkul\NurserySubscription\Policies\SubscriptionPolicy;
+use Webkul\NurserySubscription\Services\PricingAndLifecycleService;
 use Webkul\PluginManager\Console\Commands\InstallCommand;
 use Webkul\PluginManager\Console\Commands\UninstallCommand;
 use Webkul\PluginManager\Package;
 use Webkul\PluginManager\PackageServiceProvider;
-use Webkul\NurserySubscription\Console\Commands\UpdateSubscriptionStatuses;
-use Webkul\NurserySubscription\Services\PricingAndLifecycleService;
-use Webkul\NurserySubscription\Models\Child;
-use Webkul\NurserySubscription\Models\PricingPlan;
-use Webkul\NurserySubscription\Models\Subscription;
-use Webkul\NurserySubscription\Models\Payment;
-use Webkul\NurserySubscription\Models\AgeStageRule;
-use Webkul\NurserySubscription\Policies\ChildPolicy;
-use Webkul\NurserySubscription\Policies\PricingPlanPolicy;
-use Webkul\NurserySubscription\Policies\SubscriptionPolicy;
-use Webkul\NurserySubscription\Policies\PaymentPolicy;
-use Webkul\NurserySubscription\Policies\AgeStageRulePolicy;
 
 class NurserySubscriptionServiceProvider extends PackageServiceProvider
 {
     public static string $name = 'nursery-subscription';
+
     public static string $viewNamespace = 'nursery-subscription';
 
     public function configureCustomPackage(Package $package): void
@@ -39,6 +44,7 @@ class NurserySubscriptionServiceProvider extends PackageServiceProvider
                 '0001_01_01_000003_create_nursery_subscriptions_table',
                 '0001_01_01_000004_create_nursery_payments_table',
                 '0001_01_01_000005_create_nursery_age_stages_table',
+                '0001_01_01_000006_create_nursery_academic_calendar_tables',
             ])
             ->runsMigrations()
             ->hasSettings([])
@@ -50,7 +56,7 @@ class NurserySubscriptionServiceProvider extends PackageServiceProvider
                     ->runsSeeders();
             })
             ->hasUninstallCommand(function (UninstallCommand $command) {})
-            ->icon('heroicon-o-academic-cap');
+            ->icon('nursery-subscription');
     }
 
     public function packageBooted(): void
@@ -64,6 +70,8 @@ class NurserySubscriptionServiceProvider extends PackageServiceProvider
         Gate::policy(Subscription::class, SubscriptionPolicy::class);
         Gate::policy(Payment::class, PaymentPolicy::class);
         Gate::policy(AgeStageRule::class, AgeStageRulePolicy::class);
+        Gate::policy(AcademicYear::class, AcademicYearPolicy::class);
+        Gate::policy(Holiday::class, HolidayPolicy::class);
     }
 
     public function packageRegistered(): void

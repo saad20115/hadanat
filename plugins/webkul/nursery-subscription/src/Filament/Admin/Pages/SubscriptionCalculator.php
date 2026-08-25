@@ -18,6 +18,7 @@ use Filament\Pages\Page;
 use Filament\Schemas\Components\Grid;
 use Filament\Schemas\Components\Section;
 use Filament\Schemas\Schema;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\HtmlString;
 use Webkul\NurserySubscription\Enums\DurationType;
 use Webkul\NurserySubscription\Models\PricingPlan;
@@ -29,11 +30,25 @@ class SubscriptionCalculator extends Page implements HasForms
 
     protected static ?string $slug = 'nursery/calculator';
 
-    protected static string | \BackedEnum | null $navigationIcon = 'heroicon-o-calculator';
+    protected static string|\BackedEnum|null $navigationIcon = 'heroicon-o-calculator';
 
     protected static ?int $navigationSort = 3;
 
     protected string $view = 'nursery-subscription::filament.admin.pages.subscription-calculator';
+
+    public static function canAccess(): bool
+    {
+        $user = Auth::user();
+
+        if (! $user) {
+            return false;
+        }
+
+        return $user->hasRole('super_admin')
+            || $user->hasRole('Super_admin')
+            || $user->can('page_nursery_subscription_subscription_calculator')
+            || $user->can('view_any_nursery_subscription_subscription');
+    }
 
     public ?array $data = [];
 
@@ -42,14 +57,14 @@ class SubscriptionCalculator extends Page implements HasForms
     public function mount(): void
     {
         $this->form->fill([
-            'stage' => 'nursery',
-            'duration_type' => 'monthly',
-            'hours' => 4,
-            'start_date' => Carbon::today()->format('Y-m-d'),
+            'stage'                => 'nursery',
+            'duration_type'        => 'monthly',
+            'hours'                => 4,
+            'start_date'           => Carbon::today()->format('Y-m-d'),
             'has_sibling_discount' => false,
-            'include_tshirt' => false,
-            'paid_amount' => null,
-            'custom_price' => null,
+            'include_tshirt'       => false,
+            'paid_amount'          => null,
+            'custom_price'         => null,
         ]);
 
         $this->calculatedResult = null;
@@ -92,9 +107,9 @@ class SubscriptionCalculator extends Page implements HasForms
                                         ->label('القسم / الفئة العمرية')
                                         ->options([
                                             'nursery' => '🍼 الحضانة (0-3 سنوات)',
-                                            'kg1' => '🎒 KG1 (3-4 سنوات)',
-                                            'kg2' => '🎒 KG2 (4-5 سنوات)',
-                                            'kg3' => '🎒 KG3 (5-6 سنوات)',
+                                            'kg1'     => '🎒 KG1 (3-4 سنوات)',
+                                            'kg2'     => '🎒 KG2 (4-5 سنوات)',
+                                            'kg3'     => '🎒 KG3 (5-6 سنوات)',
                                         ])
                                         ->default('nursery')
                                         ->native(false)
@@ -103,15 +118,15 @@ class SubscriptionCalculator extends Page implements HasForms
                                     Select::make('duration_type')
                                         ->label('نوع ومدة الاشتراك')
                                         ->options([
-                                            'monthly' => '📆 شهر كامل',
-                                            'term1' => '🎓 الفصل الدراسي الأول (30/08 - 07/01)',
-                                            'term2' => '🎓 الفصل الدراسي الثاني (17/01 - 01/07)',
-                                            'yearly' => '🏫 سنة دراسية كاملة (30/08 - 01/07)',
-                                            'weekly' => '🗓️ أسبوعي (7 أيام)',
-                                            'daily' => '📅 يوم كامل',
-                                            'hourly' => '⏱️ بالساعة',
+                                            'monthly'       => '📆 شهر كامل',
+                                            'term1'         => '🎓 الفصل الدراسي الأول (30/08 - 07/01)',
+                                            'term2'         => '🎓 الفصل الدراسي الثاني (17/01 - 01/07)',
+                                            'yearly'        => '🏫 سنة دراسية كاملة (30/08 - 01/07)',
+                                            'weekly'        => '🗓️ أسبوعي (7 أيام)',
+                                            'daily'         => '📅 يوم كامل',
+                                            'hourly'        => '⏱️ بالساعة',
                                             'visit_package' => '🎫 باقة زيارات',
-                                            'custom' => '✨ باقة أو مدة مخصصة جديدة',
+                                            'custom'        => '✨ باقة أو مدة مخصصة جديدة',
                                         ])
                                         ->default('monthly')
                                         ->native(false)
@@ -189,11 +204,11 @@ class SubscriptionCalculator extends Page implements HasForms
                                         $calc = $this->calculatedResult;
 
                                         $discountHtml = $calc['discount_amount'] > 0
-                                            ? "<span class='font-mono font-bold text-sm text-emerald-600 dark:text-emerald-400'>-" . number_format($calc['discount_amount'], 2) . " ر.س</span>"
+                                            ? "<span class='font-mono font-bold text-sm text-emerald-600 dark:text-emerald-400'>-".number_format($calc['discount_amount'], 2).' ر.س</span>'
                                             : "<span class='text-gray-400 text-xs'>0.00 ر.س (غير مطبق)</span>";
 
                                         $tshirtHtml = $calc['tshirt_amount'] > 0
-                                            ? "<span class='font-mono font-bold text-sm text-primary-600 dark:text-primary-400'>+" . number_format($calc['tshirt_amount'], 2) . " ر.س</span>"
+                                            ? "<span class='font-mono font-bold text-sm text-primary-600 dark:text-primary-400'>+".number_format($calc['tshirt_amount'], 2).' ر.س</span>'
                                             : "<span class='text-gray-400 text-xs'>0.00 ر.س (غير مضاف)</span>";
 
                                         $remainingHtml = '';
@@ -209,13 +224,13 @@ class SubscriptionCalculator extends Page implements HasForms
                                                 $remainingHtml = "
                                                     <div class='flex justify-between items-center pt-2 border-t border-gray-200 dark:border-gray-700 text-xs'>
                                                         <span class='text-gray-500'>الدفعة المدفوعة:</span>
-                                                        <span class='font-mono font-bold text-emerald-600'>" . number_format($calc['paid_amount'], 2) . " ر.س</span>
+                                                        <span class='font-mono font-bold text-emerald-600'>".number_format($calc['paid_amount'], 2)." ر.س</span>
                                                     </div>
                                                     <div class='flex justify-between items-center text-xs'>
                                                         <span class='font-bold text-gray-700 dark:text-gray-300'>المتبقي للسداد:</span>
-                                                        <span class='font-mono font-bold text-sm text-rose-600 dark:text-rose-400'>" . number_format($calc['remaining_amount'], 2) . " ر.س</span>
+                                                        <span class='font-mono font-bold text-sm text-rose-600 dark:text-rose-400'>".number_format($calc['remaining_amount'], 2).' ر.س</span>
                                                     </div>
-                                                ";
+                                                ';
                                             }
                                         }
 
@@ -236,7 +251,7 @@ class SubscriptionCalculator extends Page implements HasForms
                                                 <div class='space-y-2 text-xs'>
                                                     <div class='flex justify-between items-center'>
                                                         <span class='text-gray-500'>السعر الأساسي:</span>
-                                                        <span class='font-mono font-bold text-gray-900 dark:text-white'>" . number_format($calc['base_price'], 2) . " ر.س</span>
+                                                        <span class='font-mono font-bold text-gray-900 dark:text-white'>".number_format($calc['base_price'], 2)." ر.س</span>
                                                     </div>
 
                                                     <div class='flex justify-between items-center'>
@@ -255,11 +270,11 @@ class SubscriptionCalculator extends Page implements HasForms
                                                                 الصافي الإجمالي المطلوب:
                                                             </div>
                                                             <div class='text-[10px] text-gray-500 mt-0.5'>
-                                                                شامل ضريبة 15% (" . number_format($calc['vat_amount'], 2) . " ر.س)
+                                                                شامل ضريبة 15% (".number_format($calc['vat_amount'], 2)." ر.س)
                                                             </div>
                                                         </div>
                                                         <div class='text-2xl font-black font-mono text-primary-700 dark:text-primary-300'>
-                                                            " . number_format($calc['net_amount'], 2) . " <span class='text-xs font-normal'>ر.س</span>
+                                                            ".number_format($calc['net_amount'], 2)." <span class='text-xs font-normal'>ر.س</span>
                                                         </div>
                                                     </div>
 
@@ -355,15 +370,15 @@ class SubscriptionCalculator extends Page implements HasForms
                 $basePrice = (float) $plan->price;
             } else {
                 $basePrice = match ($durationType) {
-                    'hourly' => 60.00,
-                    'daily' => 140.00,
-                    'weekly' => $hours == 4 ? 490.00 : 690.00,
-                    'monthly' => $hours == 4 ? 1955.00 : ($hours == 6 ? 2185.00 : 2415.00),
-                    'term1' => $hours == 4 ? 7330.00 : ($hours == 6 ? 8310.00 : 9285.00),
-                    'term2' => $hours == 4 ? 8855.00 : ($hours == 6 ? 10120.00 : 11385.00),
-                    'yearly' => $hours == 4 ? 15200.00 : ($hours == 6 ? 17500.00 : 19800.00),
+                    'hourly'        => 60.00,
+                    'daily'         => 140.00,
+                    'weekly'        => $hours == 4 ? 490.00 : 690.00,
+                    'monthly'       => $hours == 4 ? 1955.00 : ($hours == 6 ? 2185.00 : 2415.00),
+                    'term1'         => $hours == 4 ? 7330.00 : ($hours == 6 ? 8310.00 : 9285.00),
+                    'term2'         => $hours == 4 ? 8855.00 : ($hours == 6 ? 10120.00 : 11385.00),
+                    'yearly'        => $hours == 4 ? 15200.00 : ($hours == 6 ? 17500.00 : 19800.00),
                     'visit_package' => 1280.00,
-                    default => 2000.00,
+                    default         => 2000.00,
                 };
             }
         }
@@ -376,21 +391,21 @@ class SubscriptionCalculator extends Page implements HasForms
         $remaining = max(0, $netAmount - $paid);
 
         $this->calculatedResult = [
-            'start_date' => $start->format('Y-m-d'),
-            'end_date' => $endDate->format('Y-m-d'),
-            'total_days' => $totalDays,
-            'base_price' => $basePrice,
-            'discount_amount' => $discountAmount,
-            'tshirt_amount' => $tshirtAmount,
-            'net_amount' => $netAmount,
-            'vat_amount' => $vatAmount,
-            'paid_amount' => $paid,
+            'start_date'       => $start->format('Y-m-d'),
+            'end_date'         => $endDate->format('Y-m-d'),
+            'total_days'       => $totalDays,
+            'base_price'       => $basePrice,
+            'discount_amount'  => $discountAmount,
+            'tshirt_amount'    => $tshirtAmount,
+            'net_amount'       => $netAmount,
+            'vat_amount'       => $vatAmount,
+            'paid_amount'      => $paid,
             'remaining_amount' => $remaining,
         ];
 
         Notification::make()
             ->title('تم حساب التكلفة بنجاح')
-            ->body("الصافي المطلوب: " . number_format($netAmount, 2) . " ر.س")
+            ->body('الصافي المطلوب: '.number_format($netAmount, 2).' ر.س')
             ->success()
             ->send();
     }

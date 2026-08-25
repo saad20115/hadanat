@@ -24,9 +24,13 @@ use Webkul\NurserySubscription\Models\AcademicYear;
 class AcademicYearResource extends Resource
 {
     protected static ?string $model = AcademicYear::class;
+
     protected static ?string $slug = 'academic-years';
+
     protected static ?string $cluster = Configurations::class;
-    protected static string | \BackedEnum | null $navigationIcon = 'heroicon-o-academic-cap';
+
+    protected static string|\BackedEnum|null $navigationIcon = 'heroicon-o-academic-cap';
+
     protected static ?int $navigationSort = 3;
 
     public static function getModelLabel(): string
@@ -129,9 +133,9 @@ class AcademicYearResource extends Resource
     public static function getPages(): array
     {
         return [
-            'index' => Pages\ListAcademicYears::route('/'),
+            'index'  => Pages\ListAcademicYears::route('/'),
             'create' => Pages\CreateAcademicYear::route('/create'),
-            'edit' => Pages\EditAcademicYear::route('/{record}/edit'),
+            'edit'   => Pages\EditAcademicYear::route('/{record}/edit'),
         ];
     }
 }

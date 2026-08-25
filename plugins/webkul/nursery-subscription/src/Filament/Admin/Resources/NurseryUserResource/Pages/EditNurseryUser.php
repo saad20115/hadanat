@@ -6,6 +6,7 @@ namespace Webkul\NurserySubscription\Filament\Admin\Resources\NurseryUserResourc
 
 use Filament\Actions\DeleteAction;
 use Filament\Resources\Pages\EditRecord;
+use Illuminate\Support\Facades\Hash;
 use Webkul\NurserySubscription\Filament\Admin\Resources\NurseryUserResource;
 
 class EditNurseryUser extends EditRecord
@@ -17,6 +18,17 @@ class EditNurseryUser extends EditRecord
         return [
             DeleteAction::make(),
         ];
+    }
+
+    protected function mutateFormDataBeforeSave(array $data): array
+    {
+        if (empty($data['password'])) {
+            unset($data['password']);
+        } else {
+            $data['password'] = Hash::make($data['password']);
+        }
+
+        return $data;
     }
 
     protected function getRedirectUrl(): string

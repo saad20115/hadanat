@@ -22,14 +22,14 @@ enum SubscriptionStatus: string
      */
     public function label(): string
     {
-        return match($this) {
-            self::NEW => 'جديد',
-            self::ACTIVE => 'ساري',
+        return match ($this) {
+            self::NEW           => 'جديد',
+            self::ACTIVE        => 'ساري',
             self::EXPIRING_SOON => 'قرب ينتهي',
-            self::EXPIRED => 'منتهي',
-            self::RENEWED => 'مجدد',
-            self::CANCELLED => 'ملغي',
-            self::FROZEN => 'مجمّد',
+            self::EXPIRED       => 'منتهي',
+            self::RENEWED       => 'مجدد',
+            self::CANCELLED     => 'ملغي',
+            self::FROZEN        => 'مجمّد',
         };
     }
 
@@ -38,14 +38,14 @@ enum SubscriptionStatus: string
      */
     public function color(): string
     {
-        return match($this) {
-            self::NEW => 'info',
-            self::ACTIVE => 'success',
+        return match ($this) {
+            self::NEW           => 'info',
+            self::ACTIVE        => 'success',
             self::EXPIRING_SOON => 'warning',
-            self::EXPIRED => 'danger',
-            self::RENEWED => 'primary',
-            self::CANCELLED => 'gray',
-            self::FROZEN => 'gray',
+            self::EXPIRED       => 'danger',
+            self::RENEWED       => 'primary',
+            self::CANCELLED     => 'gray',
+            self::FROZEN        => 'gray',
         };
     }
 
@@ -54,14 +54,14 @@ enum SubscriptionStatus: string
      */
     public function icon(): string
     {
-        return match($this) {
-            self::NEW => 'heroicon-m-sparkles',
-            self::ACTIVE => 'heroicon-m-check-circle',
+        return match ($this) {
+            self::NEW           => 'heroicon-m-sparkles',
+            self::ACTIVE        => 'heroicon-m-check-circle',
             self::EXPIRING_SOON => 'heroicon-m-clock',
-            self::EXPIRED => 'heroicon-m-x-circle',
-            self::RENEWED => 'heroicon-m-arrow-path',
-            self::CANCELLED => 'heroicon-m-no-symbol',
-            self::FROZEN => 'heroicon-m-pause-circle',
+            self::EXPIRED       => 'heroicon-m-x-circle',
+            self::RENEWED       => 'heroicon-m-arrow-path',
+            self::CANCELLED     => 'heroicon-m-no-symbol',
+            self::FROZEN        => 'heroicon-m-pause-circle',
         };
     }
 }

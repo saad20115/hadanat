@@ -4,6 +4,9 @@ declare(strict_types=1);
 
 namespace Webkul\NurserySubscription\Filament\Admin\Resources;
 
+use Filament\Actions\BulkAction;
+use Filament\Actions\DeleteAction;
+use Filament\Actions\EditAction;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\Toggle;
@@ -11,28 +14,27 @@ use Filament\Forms\Components\ToggleButtons;
 use Filament\Resources\Resource;
 use Filament\Schemas\Components\Section;
 use Filament\Schemas\Schema;
-use Filament\Actions\BulkAction;
-use Filament\Actions\EditAction;
-use Filament\Actions\DeleteAction;
 use Filament\Tables\Columns\IconColumn;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Filters\TernaryFilter;
+use Filament\Tables\Grouping\Group;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Collection;
 use Webkul\NurserySubscription\Enums\AgeStage;
 use Webkul\NurserySubscription\Enums\DurationType;
-use Webkul\NurserySubscription\Filament\Admin\Clusters\NurseryManagement;
 use Webkul\NurserySubscription\Filament\Admin\Resources\PricingPlanResource\Pages;
 use Webkul\NurserySubscription\Models\PricingPlan;
-
 use Webkul\Support\Enums\NavigationGroup;
 
 class PricingPlanResource extends Resource
 {
     protected static ?string $model = PricingPlan::class;
+
     protected static ?string $slug = 'nursery/pricing-plans';
-    protected static string | \BackedEnum | null $navigationIcon = 'heroicon-o-currency-dollar';
+
+    protected static string|\BackedEnum|null $navigationIcon = 'heroicon-o-currency-dollar';
+
     protected static ?int $navigationSort = 4;
 
     public static function getModelLabel(): string
@@ -66,23 +68,23 @@ class PricingPlanResource extends Resource
                         ToggleButtons::make('age_stage')
                             ->label('الفئة العمرية (المرحلة)')
                             ->options([
-                                'infant' => '🍼 الرضع (6 - 18 شهراً)',
+                                'infant'  => '🍼 الرضع (6 - 18 شهراً)',
                                 'toddler' => '🧒 البراعم (18 - 36 شهراً)',
-                                'kg' => '🎒 رياض الأطفال (3 - 6 سنوات)',
+                                'kg'      => '🎒 رياض الأطفال (3 - 6 سنوات)',
                             ])
                             ->colors([
-                                'infant' => 'info',
+                                'infant'  => 'info',
                                 'toddler' => 'warning',
-                                'kg' => 'success',
+                                'kg'      => 'success',
                             ])
                             ->inline()
                             ->required()
                             ->reactive()
                             ->afterStateUpdated(function ($state, $set) {
                                 $labels = [
-                                    'infant' => 'الرضع',
+                                    'infant'  => 'الرضع',
                                     'toddler' => 'البراعم',
-                                    'kg' => 'رياض الأطفال',
+                                    'kg'      => 'رياض الأطفال',
                                 ];
                                 if ($state && isset($labels[$state])) {
                                     $set('stage_label', $labels[$state]);
@@ -98,12 +100,12 @@ class PricingPlanResource extends Resource
                             ->label('نوع ومدة الباقة')
                             ->placeholder('اختر نوع المدة...')
                             ->options([
-                                'hourly' => '⏱️ بالساعة (Hourly)',
-                                'daily' => '📅 يومي (Daily)',
-                                'weekly' => '🗓️ أسبوعي (Weekly)',
-                                'monthly' => '📆 شهري (Monthly)',
-                                'term' => '🎓 فصل دراسي / ترم (Term)',
-                                'yearly' => '🏫 سنة دراسية كاملة (Yearly)',
+                                'hourly'        => '⏱️ بالساعة (Hourly)',
+                                'daily'         => '📅 يومي (Daily)',
+                                'weekly'        => '🗓️ أسبوعي (Weekly)',
+                                'monthly'       => '📆 شهري (Monthly)',
+                                'term'          => '🎓 فصل دراسي / ترم (Term)',
+                                'yearly'        => '🏫 سنة دراسية كاملة (Yearly)',
                                 'visit_package' => '🎫 باقة زيارات (Visit Package)',
                             ])
                             ->searchable()
@@ -201,7 +203,7 @@ class PricingPlanResource extends Resource
                     ->label('مفعّل'),
             ])
             ->groups([
-                \Filament\Tables\Grouping\Group::make('age_stage')
+                Group::make('age_stage')
                     ->label('الفئة العمرية')
                     ->getTitleFromRecordUsing(fn ($record) => $record->stage_label),
             ])
@@ -224,9 +226,9 @@ class PricingPlanResource extends Resource
     public static function getPages(): array
     {
         return [
-            'index' => Pages\ListPricingPlans::route('/'),
+            'index'  => Pages\ListPricingPlans::route('/'),
             'create' => Pages\CreatePricingPlan::route('/create'),
-            'edit' => Pages\EditPricingPlan::route('/{record}/edit'),
+            'edit'   => Pages\EditPricingPlan::route('/{record}/edit'),
         ];
     }
 }

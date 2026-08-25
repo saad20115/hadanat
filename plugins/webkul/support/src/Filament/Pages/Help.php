@@ -26,6 +26,21 @@ class Help extends Page
         return NavigationGroup::Help;
     }
 
+    public static function canAccess(): bool
+    {
+        $user = auth()->user();
+
+        if (! $user) {
+            return false;
+        }
+
+        if ($user->hasRole('super_admin') || $user->hasRole('Super_admin') || $user->is_default) {
+            return true;
+        }
+
+        return $user->can('app_security') || $user->can('page_support_help');
+    }
+
     public function getTitle(): string
     {
         return __('support::filament/pages/help.title');

@@ -18,18 +18,25 @@ use Filament\Tables\Columns\IconColumn;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
+use Spatie\Permission\Models\Role;
 use Webkul\NurserySubscription\Filament\Admin\Clusters\Configurations;
 use Webkul\NurserySubscription\Filament\Admin\Resources\NurseryUserResource\Pages;
 use Webkul\Security\Models\User;
+use Webkul\Support\Services\CompanyContext;
 
 class NurseryUserResource extends Resource
 {
     protected static ?string $model = User::class;
+
     protected static ?string $slug = 'users';
+
     protected static ?string $cluster = Configurations::class;
-    protected static string | \BackedEnum | null $navigationIcon = 'heroicon-o-users';
+
+    protected static string|\BackedEnum|null $navigationIcon = 'heroicon-o-users';
+
     protected static ?int $navigationSort = 5;
 
     public static function getModelLabel(): string
@@ -80,6 +87,7 @@ class NurseryUserResource extends Resource
                         Select::make('roles')
                             ->label('الأدوار والصلاحيات')
                             ->relationship('roles', 'name')
+                            ->getOptionLabelFromRecordUsing(fn ($record) => self::formatRoleName($record->name))
                             ->multiple()
                             ->preload()
                             ->searchable(),
@@ -93,8 +101,60 @@ class NurseryUserResource extends Resource
             ]);
     }
 
+    public static function formatRoleName(?string $role): string
+    {
+        return match ($role) {
+            'super_admin'        => 'المدير العام (Super Admin)',
+            'nursery_manager'    => 'مديرة الحضانة (Nursery Manager)',
+            'nursery_accountant' => 'المحاسب المالي (Accountant)',
+            'nursery_registrar'  => 'مسؤول القبول والتسجيل (Registrar)',
+            'nursery_supervisor' => 'مشرفة الأطفال والأنشطة (Supervisor)',
+            default              => ucfirst(str_replace('_', ' ', $role ?? '')),
+        };
+    }
+
+    public static function canAccess(): bool
+    {
+        $user = Auth::user();
+
+        if (! $user) {
+            return false;
+        }
+
+        return $user->hasRole('super_admin')
+            || $user->hasRole('Super_admin')
+            || $user->can('view_any_security_user');
+    }
+
+    public static function canCreate(): bool
+    {
+        $user = Auth::user();
+
+        return (bool) ($user && ($user->hasRole('super_admin') || $user->hasRole('Super_admin') || $user->can('create_security_user')));
+    }
+
+    public static function canEdit(Model $record): bool
+    {
+        $user = Auth::user();
+
+        return (bool) ($user && ($user->hasRole('super_admin') || $user->hasRole('Super_admin') || $user->can('update_security_user')));
+    }
+
+    public static function canDelete(Model $record): bool
+    {
+        $user = Auth::user();
+
+        if (! $user || $user->id === $record->id) {
+            return false;
+        }
+
+        return (bool) ($user->hasRole('super_admin') || $user->hasRole('Super_admin') || $user->can('delete_security_user'));
+    }
+
     public static function table(Table $table): Table
     {
+        $currentUser = Auth::user();
+
         return $table
             ->columns([
                 TextColumn::make('name')
@@ -110,6 +170,7 @@ class NurseryUserResource extends Resource
 
                 TextColumn::make('roles.name')
                     ->label('الدور / الصلاحيات')
+                    ->formatStateUsing(fn ($state) => self::formatRoleName($state))
                     ->badge()
                     ->color('primary'),
 
@@ -124,10 +185,86 @@ class NurseryUserResource extends Resource
                     ->sortable(),
             ])
             ->actions([
+                Action::make('changePassword')
+                    ->label('تغيير كلمة المرور')
+                    ->icon('heroicon-o-key')
+                    ->color('warning')
+                    ->visible(fn (User $record): bool => (bool) ($currentUser && (
+                        $currentUser->hasRole('super_admin')
+                        || $currentUser->hasRole('Super_admin')
+                        || $currentUser->can('update_security_user')
+                        || $currentUser->id === $record->id
+                    )))
+                    ->modalHeading(fn (User $record): string => 'تغيير كلمة المرور للمستخدم: '.$record->name)
+                    ->modalDescription('أدخل كلمة المرور الجديدة لهذا الحساب وسيتم تحديثها فوراً.')
+                    ->form([
+                        TextInput::make('new_password')
+                            ->label('كلمة المرور الجديدة')
+                            ->password()
+                            ->revealable()
+                            ->required()
+                            ->minLength(6)
+                            ->placeholder('أدخل 6 خانات على الأقل...'),
+                    ])
+                    ->action(function (User $record, array $data): void {
+                        $record->update([
+                            'password' => Hash::make($data['new_password']),
+                        ]);
+                        Notification::make()
+                            ->title('تم تغيير كلمة المرور بنجاح')
+                            ->body('تم تحديث كلمة المرور للمستخدم '.$record->name.' بنجاح.')
+                            ->success()
+                            ->send();
+                    }),
+
+                Action::make('manageRoles')
+                    ->label('تعديل الصلاحيات')
+                    ->icon('heroicon-o-shield-check')
+                    ->color('info')
+                    ->visible(fn (User $record): bool => (bool) ($currentUser && (
+                        $currentUser->hasRole('super_admin')
+                        || $currentUser->hasRole('Super_admin')
+                        || $currentUser->can('update_security_role')
+                        || $currentUser->can('update_security_user')
+                    )))
+                    ->modalHeading(fn (User $record): string => 'تعديل الأدوار والصلاحيات للمستخدم: '.$record->name)
+                    ->modalDescription('حدد الأدوار الوظيفية الممنوحة لهذا المستخدم في النظام:')
+                    ->fillForm(fn (User $record): array => [
+                        'roles' => $record->roles->pluck('id')->toArray(),
+                    ])
+                    ->form([
+                        Select::make('roles')
+                            ->label('الأدوار والصلاحيات')
+                            ->options(
+                                Role::all()
+                                    ->pluck('name', 'id')
+                                    ->map(fn ($name) => self::formatRoleName($name))
+                            )
+                            ->multiple()
+                            ->preload()
+                            ->searchable()
+                            ->required(),
+                    ])
+                    ->action(function (User $record, array $data): void {
+                        $roleIds = $data['roles'] ?? [];
+                        $roles = Role::whereIn('id', $roleIds)->get();
+                        $record->syncRoles($roles);
+                        Notification::make()
+                            ->title('تم تحديث الأدوار والصلاحيات بنجاح')
+                            ->body('تم حفظ وتطبيق الصلاحيات الجديدة للمستخدم '.$record->name.' فوراً.')
+                            ->success()
+                            ->send();
+                    }),
+
                 Action::make('toggleActive')
                     ->label(fn (User $record): string => $record->is_active ? 'تعطيل الحساب' : 'تنشيط الحساب')
                     ->icon(fn (User $record): string => $record->is_active ? 'heroicon-o-no-symbol' : 'heroicon-o-check-circle')
                     ->color(fn (User $record): string => $record->is_active ? 'danger' : 'success')
+                    ->visible(fn (User $record): bool => (bool) ($currentUser && $currentUser->id !== $record->id && (
+                        $currentUser->hasRole('super_admin')
+                        || $currentUser->hasRole('Super_admin')
+                        || $currentUser->can('update_security_user')
+                    )))
                     ->requiresConfirmation()
                     ->modalHeading(fn (User $record): string => $record->is_active ? 'تأكيد تعطيل حساب المستخدم' : 'تأكيد تنشيط حساب المستخدم')
                     ->modalDescription(fn (User $record): string => $record->is_active ? 'هل أنت متأكد من تعطيل هذا الحساب؟ لن يتمكن المستخدم من الدخول للنظام.' : 'هل تريد تنشيط هذا الحساب والسماح له بالدخول؟')
@@ -139,14 +276,15 @@ class NurseryUserResource extends Resource
                             ->send();
                     }),
                 EditAction::make(),
-                DeleteAction::make(),
+                DeleteAction::make()
+                    ->hidden(fn (User $record): bool => (bool) ($currentUser && $currentUser->id === $record->id)),
             ])
             ->defaultSort('created_at', 'desc');
     }
 
     public static function getEloquentQuery(): Builder
     {
-        $companyId = Auth::user()?->default_company_id ?? 2;
+        $companyId = app(CompanyContext::class)->currentId() ?? Auth::user()?->default_company_id ?? 1;
 
         return parent::getEloquentQuery()
             ->where(function ($q) use ($companyId) {
@@ -159,9 +297,9 @@ class NurseryUserResource extends Resource
     public static function getPages(): array
     {
         return [
-            'index' => Pages\ListNurseryUsers::route('/'),
+            'index'  => Pages\ListNurseryUsers::route('/'),
             'create' => Pages\CreateNurseryUser::route('/create'),
-            'edit' => Pages\EditNurseryUser::route('/{record}/edit'),
+            'edit'   => Pages\EditNurseryUser::route('/{record}/edit'),
         ];
     }
 }

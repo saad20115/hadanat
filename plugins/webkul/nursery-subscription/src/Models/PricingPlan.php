@@ -14,7 +14,7 @@ use Webkul\Support\Traits\BelongsToCompany;
 
 class PricingPlan extends Model
 {
-    use HasFactory, BelongsToCompany;
+    use BelongsToCompany, HasFactory;
 
     protected $table = 'nursery_pricing_plans';
 
@@ -34,10 +34,10 @@ class PricingPlan extends Model
     ];
 
     protected $casts = [
-        'age_stage' => AgeStage::class,
+        'age_stage'     => AgeStage::class,
         'duration_type' => DurationType::class,
-        'price' => 'decimal:2',
-        'is_active' => 'boolean',
+        'price'         => 'decimal:2',
+        'is_active'     => 'boolean',
     ];
 
     public function subscriptions(): HasMany

@@ -49,14 +49,14 @@ class UserResource extends Resource
     {
         $user = Auth::user();
 
-        return (bool) ($user && ($user->hasRole('Super_admin') || $user->hasRole('super_admin')));
+        return (bool) ($user && ($user->hasRole('Super_admin') || $user->hasRole('super_admin') || $user->can('view_any_security_user')));
     }
 
     public static function shouldRegisterNavigation(): bool
     {
         $user = Auth::user();
 
-        return (bool) ($user && ($user->hasRole('Super_admin') || $user->hasRole('super_admin')));
+        return (bool) ($user && ($user->hasRole('Super_admin') || $user->hasRole('super_admin') || $user->can('view_any_security_user')));
     }
 
     public static function getGloballySearchableAttributes(): array

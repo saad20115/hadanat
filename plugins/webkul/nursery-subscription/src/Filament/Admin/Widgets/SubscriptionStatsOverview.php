@@ -12,8 +12,8 @@ use Webkul\NurserySubscription\Models\Subscription;
 class SubscriptionStatsOverview extends StatsOverviewWidget
 {
     protected static ?int $sort = 1;
-    
-    protected int | string | array $columnSpan = 'full';
+
+    protected int|string|array $columnSpan = 'full';
 
     protected function getStats(): array
     {
@@ -33,8 +33,8 @@ class SubscriptionStatsOverview extends StatsOverviewWidget
             Stat::make('منتهية', Subscription::where('status', 'expired')->count())
                 ->icon('heroicon-o-x-circle')
                 ->color('danger'),
-                
-            Stat::make('مبالغ متبقية', number_format((float) Subscription::where('remaining_amount', '>', 0)->sum('remaining_amount'), 2) . ' ر.س')
+
+            Stat::make('مبالغ متبقية', number_format((float) Subscription::where('remaining_amount', '>', 0)->sum('remaining_amount'), 2).' ر.س')
                 ->icon('heroicon-o-banknotes')
                 ->color('danger'),
         ];

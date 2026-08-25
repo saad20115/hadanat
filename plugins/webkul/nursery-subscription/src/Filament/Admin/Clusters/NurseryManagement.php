@@ -8,19 +8,19 @@ use Filament\Clusters\Cluster;
 
 class NurseryManagement extends Cluster
 {
-    protected static string | \BackedEnum | null $navigationIcon = 'heroicon-o-academic-cap';
-    
-    protected static string | \UnitEnum | null $navigationGroup = 'إدارة الحضانة';
-    
+    protected static string|\BackedEnum|null $navigationIcon = 'heroicon-o-academic-cap';
+
+    protected static string|\UnitEnum|null $navigationGroup = 'براعم';
+
     protected static ?int $navigationSort = 50;
 
     public static function getNavigationLabel(): string
     {
-        return 'إدارة الحضانة';
+        return 'براعم';
     }
 
     public static function getClusterBreadcrumb(): ?string
     {
-        return 'إدارة الحضانة';
+        return 'براعم';
     }
 }

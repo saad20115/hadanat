@@ -3,16 +3,13 @@
 declare(strict_types=1);
 
 use Carbon\Carbon;
-use Webkul\NurserySubscription\Enums\AgeStage;
 use Webkul\NurserySubscription\Enums\DurationType;
-use Webkul\NurserySubscription\Enums\SubscriptionStatus;
 use Webkul\NurserySubscription\Models\Child;
 use Webkul\NurserySubscription\Models\PricingPlan;
-use Webkul\NurserySubscription\Models\Subscription;
 use Webkul\NurserySubscription\Services\PricingAndLifecycleService;
 
 it('calculates correct end date for daily plan', function () {
-    $service = new PricingAndLifecycleService();
+    $service = new PricingAndLifecycleService;
     $plan = new PricingPlan([
         'duration_type' => DurationType::DAILY,
     ]);
@@ -24,9 +21,9 @@ it('calculates correct end date for daily plan', function () {
 });
 
 it('calculates correct end date for weekly plan (1 week)', function () {
-    $service = new PricingAndLifecycleService();
+    $service = new PricingAndLifecycleService;
     $plan = new PricingPlan([
-        'duration_type' => DurationType::WEEKLY,
+        'duration_type'  => DurationType::WEEKLY,
         'duration_value' => 1,
     ]);
 
@@ -37,9 +34,9 @@ it('calculates correct end date for weekly plan (1 week)', function () {
 });
 
 it('calculates correct end date for 1 month plan', function () {
-    $service = new PricingAndLifecycleService();
+    $service = new PricingAndLifecycleService;
     $plan = new PricingPlan([
-        'duration_type' => DurationType::MONTHLY,
+        'duration_type'  => DurationType::MONTHLY,
         'duration_value' => 1,
     ]);
 
@@ -50,9 +47,9 @@ it('calculates correct end date for 1 month plan', function () {
 });
 
 it('calculates correct end date for 3 months plan', function () {
-    $service = new PricingAndLifecycleService();
+    $service = new PricingAndLifecycleService;
     $plan = new PricingPlan([
-        'duration_type' => DurationType::MONTHLY,
+        'duration_type'  => DurationType::MONTHLY,
         'duration_value' => 3,
     ]);
 
@@ -63,9 +60,9 @@ it('calculates correct end date for 3 months plan', function () {
 });
 
 it('calculates correct end date for term 1 (4 months and 1 week)', function () {
-    $service = new PricingAndLifecycleService();
+    $service = new PricingAndLifecycleService;
     $plan = new PricingPlan([
-        'duration_type' => DurationType::TERM,
+        'duration_type'  => DurationType::TERM,
         'duration_value' => 4.25,
     ]);
 
@@ -77,10 +74,10 @@ it('calculates correct end date for term 1 (4 months and 1 week)', function () {
 });
 
 it('calculates correct pricing without discounts or tshirt', function () {
-    $service = new PricingAndLifecycleService();
+    $service = new PricingAndLifecycleService;
     $plan = new PricingPlan([
         'duration_type' => DurationType::MONTHLY,
-        'price' => 2070.00,
+        'price'         => 2070.00,
     ]);
 
     $child = new Child([
@@ -97,10 +94,10 @@ it('calculates correct pricing without discounts or tshirt', function () {
 });
 
 it('calculates correct pricing with tshirt fee', function () {
-    $service = new PricingAndLifecycleService();
+    $service = new PricingAndLifecycleService;
     $plan = new PricingPlan([
         'duration_type' => DurationType::MONTHLY,
-        'price' => 2070.00,
+        'price'         => 2070.00,
     ]);
 
     $child = new Child([

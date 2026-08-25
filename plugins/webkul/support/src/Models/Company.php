@@ -16,6 +16,7 @@ use Webkul\Chatter\Traits\HasChatter;
 use Webkul\Field\Traits\HasCustomFields;
 use Webkul\Partner\Models\Partner;
 use Webkul\Security\Models\User;
+use Webkul\Security\Support\OwnerSource;
 use Webkul\Security\Traits\HasOwnershipScope;
 use Webkul\Support\Database\Factories\CompanyFactory;
 use Webkul\Support\Models\Scopes\CompanyScope;
@@ -28,6 +29,14 @@ class Company extends Model implements Sortable
     protected static function ownershipScopeIsGlobal(): bool
     {
         return false;
+    }
+
+    public function ownershipSources(): array
+    {
+        return [
+            OwnerSource::column('creator_id'),
+            OwnerSource::pivot('user_allowed_companies', 'company_id', 'user_id'),
+        ];
     }
 
     protected $fillable = [

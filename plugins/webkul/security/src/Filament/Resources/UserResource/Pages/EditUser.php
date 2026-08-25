@@ -15,7 +15,6 @@ use Illuminate\Validation\ValidationException;
 use Webkul\Security\Enums\PermissionType;
 use Webkul\Security\Filament\Resources\UserResource;
 use Webkul\Security\Models\User;
-use Webkul\Security\Settings\UserSettings;
 
 class EditUser extends EditRecord
 {
@@ -34,7 +33,7 @@ class EditUser extends EditRecord
         return [
             Action::make('changePassword')
                 ->label(__('security::filament/resources/user/pages/edit-user.header-actions.change-password.label'))
-                ->visible(fn (UserSettings $userSettings) => $userSettings->enable_reset_password)
+                ->visible(fn () => (bool) (Auth::user() && (Auth::user()->hasRole('Super_admin') || Auth::user()->hasRole('super_admin') || Auth::user()->can('update_security_user'))))
                 ->action(function (User $record, array $data): void {
                     $record->update([
                         'password' => Hash::make($data['new_password']),

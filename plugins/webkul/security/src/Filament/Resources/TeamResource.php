@@ -6,6 +6,7 @@ use Filament\Resources\Resource;
 use Filament\Schemas\Schema;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Support\Facades\Auth;
 use Webkul\Security\Filament\Resources\TeamResource\Pages\ManageTeams;
 use Webkul\Security\Filament\Resources\TeamResource\Schemas\TeamForm;
 use Webkul\Security\Filament\Resources\TeamResource\Schemas\TeamInfolist;
@@ -36,14 +37,14 @@ class TeamResource extends Resource
 
     public static function canAccess(): bool
     {
-        $user = \Illuminate\Support\Facades\Auth::user();
+        $user = Auth::user();
 
         return (bool) ($user && ($user->hasRole('Super_admin') || $user->hasRole('super_admin')));
     }
 
     public static function shouldRegisterNavigation(): bool
     {
-        $user = \Illuminate\Support\Facades\Auth::user();
+        $user = Auth::user();
 
         return (bool) ($user && ($user->hasRole('Super_admin') || $user->hasRole('super_admin')));
     }

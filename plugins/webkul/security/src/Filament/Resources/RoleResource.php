@@ -7,17 +7,18 @@ use BezhanSalleh\FilamentShield\Facades\FilamentShield;
 use BezhanSalleh\FilamentShield\Resources\Roles\RoleResource as RolesRoleResource;
 use BezhanSalleh\FilamentShield\Support\Utils;
 use Filament\Forms\Components\CheckboxList;
-use Filament\Forms\Components\Select;
 use Filament\Schemas\Components\Component;
 use Filament\Schemas\Components\Fieldset;
 use Filament\Schemas\Components\Grid;
 use Filament\Schemas\Components\Section;
+use Filament\Schemas\Components\Tabs;
 use Filament\Schemas\Components\Tabs\Tab;
 use Filament\Schemas\Schema;
 use Filament\Tables\Table;
 use Illuminate\Contracts\Support\Htmlable;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Collection;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Str;
 use Webkul\Security\Filament\Resources\RoleResource\Pages\CreateRole;
 use Webkul\Security\Filament\Resources\RoleResource\Pages\EditRole;
@@ -41,14 +42,14 @@ class RoleResource extends RolesRoleResource
 
     public static function canAccess(): bool
     {
-        $user = \Illuminate\Support\Facades\Auth::user();
+        $user = Auth::user();
 
         return (bool) ($user && ($user->hasRole('Super_admin') || $user->hasRole('super_admin')));
     }
 
     public static function shouldRegisterNavigation(): bool
     {
-        $user = \Illuminate\Support\Facades\Auth::user();
+        $user = Auth::user();
 
         return (bool) ($user && ($user->hasRole('Super_admin') || $user->hasRole('super_admin')));
     }
@@ -143,10 +144,151 @@ class RoleResource extends RolesRoleResource
             ->schema(static::getPluginWidgetEntitiesSchema());
     }
 
-    /**
-     * Returns the full set of permission names that the form checkboxes represent.
-     * Uses the same data sources as the form so "Select All" saves exactly what is shown.
-     */
+    public static function getShieldFormComponents(): Component
+    {
+        return Tabs::make('Permissions')
+            ->contained()
+            ->tabs([
+                static::getTabFormComponentForResources(),
+                static::getTabFormComponentForPage(),
+                static::getTabFormComponentForWidget(),
+                static::getTabFormComponentForApps(),
+            ])
+            ->columnSpan('full');
+    }
+
+    public static function getTabFormComponentForApps(): Component
+    {
+        $apps = static::getAppModulesList();
+        $count = count($apps);
+
+        $options = collect($apps)->mapWithKeys(function ($app) {
+            return [$app['permission'] => $app['name']];
+        })->toArray();
+
+        $descriptions = collect($apps)->mapWithKeys(function ($app) {
+            return [$app['permission'] => $app['description']];
+        })->toArray();
+
+        return Tab::make('apps')
+            ->label('التطبيقات')
+            ->icon('heroicon-o-squares-2x2')
+            ->badge($count)
+            ->schema([
+                Section::make('صلاحيات التطبيقات والموديولات الرئيسية')
+                    ->description('تحكم في ظهور أو إخفاء أيقونة التطبيق والوصول إلى كافة شاشاته وروابطه الداخلية لهذا الدور. التطبيق المحدد (متاح) والتطبيق غير المحدد (مخفي ومحظور).')
+                    ->schema([
+                        CheckboxList::make('apps_tab')
+                            ->hiddenLabel()
+                            ->options($options)
+                            ->descriptions($descriptions)
+                            ->searchable()
+                            ->bulkToggleable()
+                            ->columns([
+                                'default' => 1,
+                                'sm'      => 2,
+                                'lg'      => 2,
+                                'xl'      => 3,
+                            ])
+                            ->afterStateHydrated(function (Component $component, string $operation, ?Model $record) use ($options): void {
+                                static::setPermissionStateForRecordPermissions(
+                                    component: $component,
+                                    operation: $operation,
+                                    permissions: $options,
+                                    record: $record
+                                );
+                            })
+                            ->dehydrated(fn ($state): bool => ! blank($state)),
+                    ]),
+            ]);
+    }
+
+    public static function getAppModulesList(): array
+    {
+        return [
+            'nursery' => [
+                'name'        => 'براعم (Baraem)',
+                'description' => 'إدارة قبول وتسجيل الأطفال، خطط الاشتراكات، السداد المالي، والتقويم الأكاديمي',
+                'permission'  => 'app_nursery',
+            ],
+            'sales' => [
+                'name'        => 'المبيعات (Sales)',
+                'description' => 'إدارة أوامر البيع وعروض الأسعار والعملاء ومسار المبيعات',
+                'permission'  => 'app_sales',
+            ],
+            'purchases' => [
+                'name'        => 'المشتريات (Purchases)',
+                'description' => 'إدارة أوامر الشراء وطلبات عروض الأسعار والموردين',
+                'permission'  => 'app_purchases',
+            ],
+            'invoices' => [
+                'name'        => 'الفواتير (Invoices)',
+                'description' => 'إنشاء وإدارة فواتير العملاء والموردين والدفعات المالية',
+                'permission'  => 'app_invoices',
+            ],
+            'accounts' => [
+                'name'        => 'المحاسبة (Accounting)',
+                'description' => 'إدارة شجرة الحسابات واليوميات والقيود المحاسبية والإقفال',
+                'permission'  => 'app_accounts',
+            ],
+            'inventories' => [
+                'name'        => 'المخزون (Inventory)',
+                'description' => 'إدارة المنتجات والمستودعات والتحويلات وجرد المخزون',
+                'permission'  => 'app_inventories',
+            ],
+            'employees' => [
+                'name'        => 'الموظفين (Employees)',
+                'description' => 'إدارة سجلات الموظفين والأقسام وعقود العمل',
+                'permission'  => 'app_employees',
+            ],
+            'recruitments' => [
+                'name'        => 'التوظيف (Recruitment)',
+                'description' => 'إدارة الوظائف الشاغرة وطلبات التوظيف ومراحل التقييم',
+                'permission'  => 'app_recruitments',
+            ],
+            'time-off' => [
+                'name'        => 'الإجازات (Time Off)',
+                'description' => 'إدارة طلبات الإجازات وأنواعها وأرصدة الموظفين',
+                'permission'  => 'app_time_off',
+            ],
+            'projects' => [
+                'name'        => 'المشاريع (Projects)',
+                'description' => 'إدارة المشاريع والمهام وساعات العمل وتتبع الإنجاز',
+                'permission'  => 'app_projects',
+            ],
+            'manufacturing' => [
+                'name'        => 'التصنيع (Manufacturing)',
+                'description' => 'إدارة أوامر التصنيع والإنتاج وقوائم المواد (BOM)',
+                'permission'  => 'app_manufacturing',
+            ],
+            'maintenance' => [
+                'name'        => 'الصيانة (Maintenance)',
+                'description' => 'إدارة طلبات الصيانة الوقائية والطارئة والمعدات',
+                'permission'  => 'app_maintenance',
+            ],
+            'website' => [
+                'name'        => 'الموقع الإلكتروني (Website)',
+                'description' => 'إدارة صفحات الموقع الإلكتروني والمدونات والمحتوى',
+                'permission'  => 'app_website',
+            ],
+            'contacts' => [
+                'name'        => 'جهات الاتصال (Contacts)',
+                'description' => 'إدارة سجلات العملاء والموردين والشركاء',
+                'permission'  => 'app_contacts',
+            ],
+            'security' => [
+                'name'        => 'الأمان والإعدادات (Settings & Security)',
+                'description' => 'إدارة المستخدمين والأدوار وصلاحيات النظام العامة',
+                'permission'  => 'app_security',
+            ],
+            'plugin-manager' => [
+                'name'        => 'مدير الإضافات (Plugins)',
+                'description' => 'إدارة وتفعيل وتثبيت الإضافات والتطبيقات في النظام',
+                'permission'  => 'app_plugins',
+            ],
+        ];
+    }
+
     public static function getAllFormPermissions(): Collection
     {
         if (static::$allFormPermissions instanceof Collection) {
@@ -156,9 +298,12 @@ class RoleResource extends RolesRoleResource
         $resourcePermissions = collect(static::getResources())
             ->flatMap(fn (array $entity): array => array_keys(static::getResourcePermissionOptions($entity)));
 
+        $appPermissions = collect(static::getAppModulesList())->pluck('permission');
+
         return static::$allFormPermissions = $resourcePermissions
             ->merge(array_keys(static::getPageOptions()))
             ->merge(array_keys(static::getWidgetOptions()))
+            ->merge($appPermissions)
             ->unique()
             ->values();
     }

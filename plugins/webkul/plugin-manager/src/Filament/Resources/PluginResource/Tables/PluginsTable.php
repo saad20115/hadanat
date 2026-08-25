@@ -44,9 +44,16 @@ class PluginsTable
 
                     ImageColumn::make('package_image')
                         ->label('')
-                        ->getStateUsing(fn ($record) => $record?->package?->icon
-                            ? asset("svg/{$record->package->icon}.svg")
-                            : null)
+                        ->getStateUsing(function ($record) {
+                            if (! $record?->package?->icon) {
+                                return null;
+                            }
+
+                            $path = public_path("svg/{$record->package->icon}.svg");
+                            $v = file_exists($path) ? filemtime($path) : time();
+
+                            return asset("svg/{$record->package->icon}.svg?v={$v}");
+                        })
                         ->imageSize(100)
                         ->visible(fn ($record) => $record?->package?->icon)
                         ->grow(false),

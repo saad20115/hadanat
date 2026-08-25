@@ -18,7 +18,7 @@ use Webkul\Support\Traits\BelongsToCompany;
 
 class Child extends Model
 {
-    use HasFactory, SoftDeletes, BelongsToCompany;
+    use BelongsToCompany, HasFactory, SoftDeletes;
 
     protected $table = 'nursery_children';
 
@@ -38,7 +38,7 @@ class Child extends Model
     ];
 
     protected $casts = [
-        'birth_date' => 'date',
+        'birth_date'   => 'date',
         'has_siblings' => 'boolean',
     ];
 
@@ -137,15 +137,15 @@ class Child extends Model
 
         $years = (int) $birthDate->diffInYears($now);
         $months = (int) ($birthDate->diffInMonths($now) % 12);
-        
+
         $label = [];
         if ($years > 0) {
-            $label[] = $years . ' ' . ($years == 1 ? 'سنة' : ($years == 2 ? 'سنتان' : ($years <= 10 ? 'سنوات' : 'سنة')));
+            $label[] = $years.' '.($years == 1 ? 'سنة' : ($years == 2 ? 'سنتان' : ($years <= 10 ? 'سنوات' : 'سنة')));
         }
         if ($months > 0) {
-            $label[] = $months . ' ' . ($months == 1 ? 'شهر' : ($months == 2 ? 'شهران' : ($months <= 10 ? 'أشهر' : 'شهراً')));
+            $label[] = $months.' '.($months == 1 ? 'شهر' : ($months == 2 ? 'شهران' : ($months <= 10 ? 'أشهر' : 'شهراً')));
         }
-        
+
         return empty($label) ? 'أقل من شهر' : implode(' و ', $label);
     }
 }

@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Webkul\NurserySubscription\Filament\Admin\Pages;
 
 use Filament\Pages\Page;
+use Illuminate\Support\Facades\Auth;
 use Webkul\NurserySubscription\Filament\Admin\Widgets\ChildrenSubscriptionSummaryWidget;
 use Webkul\NurserySubscription\Filament\Admin\Widgets\ExpiringSubscriptionsTable;
 use Webkul\NurserySubscription\Filament\Admin\Widgets\NurseryKpisWidget;
@@ -15,11 +16,24 @@ class NurseryReports extends Page
 {
     protected static ?string $slug = 'nursery/reports';
 
-    protected static string | \BackedEnum | null $navigationIcon = 'heroicon-o-presentation-chart-line';
+    protected static string|\BackedEnum|null $navigationIcon = 'heroicon-o-presentation-chart-line';
 
     protected static ?int $navigationSort = 5;
 
     protected string $view = 'nursery-subscription::filament.admin.pages.nursery-reports';
+
+    public static function canAccess(): bool
+    {
+        $user = Auth::user();
+
+        if (! $user) {
+            return false;
+        }
+
+        return $user->hasRole('super_admin')
+            || $user->hasRole('Super_admin')
+            || $user->can('page_nursery_subscription_nursery_reports');
+    }
 
     public static function getNavigationLabel(): string
     {

@@ -182,6 +182,16 @@ JS,
                                     ->disabled(fn (?Model $record): bool => $record instanceof Role && $record->isSystemRole())
                                     ->dehydrated(),
 
+                                Select::make('default_landing_page')
+                                    ->label('الصفحة الافتراضية الأولى للتوجيه (Default Landing Page)')
+                                    ->helperText('الصفحة الأولى التي يتم توجيه مستخدمي هذا الدور إليها تلقائياً فور تسجيل الدخول لمنع أخطاء 403')
+                                    ->placeholder('اختر الصفحة الافتراضية (مثال: براعم: الاشتراكات)')
+                                    ->options(Role::getLandingPageOptions())
+                                    ->searchable()
+                                    ->preload()
+                                    ->nullable()
+                                    ->dehydrated(),
+
                                 Select::make(config('permission.column_names.team_foreign_key'))
                                     ->label(__('filament-shield::filament-shield.field.team'))
                                     ->placeholder(__('filament-shield::filament-shield.field.team.placeholder'))
@@ -195,7 +205,7 @@ JS,
                             ])
                             ->columns([
                                 'sm' => 2,
-                                'lg' => 3,
+                                'lg' => 2,
                             ])
                             ->columnSpanFull(),
                     ])

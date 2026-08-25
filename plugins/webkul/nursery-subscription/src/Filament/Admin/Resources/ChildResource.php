@@ -4,12 +4,12 @@ declare(strict_types=1);
 
 namespace Webkul\NurserySubscription\Filament\Admin\Resources;
 
-use Filament\Actions\ViewAction;
-use Filament\Actions\EditAction;
+use Carbon\Carbon;
 use Filament\Actions\DeleteAction;
+use Filament\Actions\EditAction;
+use Filament\Actions\ViewAction;
 use Filament\Forms\Components\DatePicker;
 use Filament\Forms\Components\Placeholder;
-use Filament\Forms\Components\Select;
 use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\Toggle;
@@ -21,20 +21,21 @@ use Filament\Tables\Columns\IconColumn;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Filters\TernaryFilter;
 use Filament\Tables\Table;
-use Webkul\NurserySubscription\Enums\AgeStage;
-use Webkul\NurserySubscription\Filament\Admin\Clusters\NurseryManagement;
 use Webkul\NurserySubscription\Filament\Admin\Resources\ChildResource\Pages;
+use Webkul\NurserySubscription\Models\AgeStageRule;
 use Webkul\NurserySubscription\Models\Child;
-use Illuminate\Database\Eloquent\Builder;
-
 use Webkul\Support\Enums\NavigationGroup;
 
 class ChildResource extends Resource
 {
     protected static ?string $model = Child::class;
+
     protected static ?string $slug = 'nursery/children';
-    protected static string | \BackedEnum | null $navigationIcon = 'heroicon-o-user-group';
+
+    protected static string|\BackedEnum|null $navigationIcon = 'heroicon-o-user-group';
+
     protected static ?string $recordTitleAttribute = 'full_name';
+
     protected static ?int $navigationSort = 2;
 
     public static function getModelLabel(): string
@@ -74,11 +75,11 @@ class ChildResource extends Resource
                         ToggleButtons::make('gender')
                             ->label('الجنس')
                             ->options([
-                                'male' => 'ذكر 👦',
+                                'male'   => 'ذكر 👦',
                                 'female' => 'أنثى 👧',
                             ])
                             ->colors([
-                                'male' => 'info',
+                                'male'   => 'info',
                                 'female' => 'danger',
                             ])
                             ->inline()
@@ -92,12 +93,12 @@ class ChildResource extends Resource
                             ->reactive()
                             ->afterStateUpdated(function ($state, $set) {
                                 if ($state) {
-                                    $birth = \Carbon\Carbon::parse($state);
-                                    $months = (int) $birth->diffInMonths(\Carbon\Carbon::now());
-                                    $years = (int) $birth->diffInYears(\Carbon\Carbon::now());
+                                    $birth = Carbon::parse($state);
+                                    $months = (int) $birth->diffInMonths(Carbon::now());
+                                    $years = (int) $birth->diffInYears(Carbon::now());
                                     $remMonths = $months % 12;
-                                    $ageText = ($years > 0 ? "{$years} سنة " : '') . ($remMonths > 0 ? "و {$remMonths} أشهر" : "{$months} شهراً");
-                                    $rule = \Webkul\NurserySubscription\Models\AgeStageRule::where('is_active', true)
+                                    $ageText = ($years > 0 ? "{$years} سنة " : '').($remMonths > 0 ? "و {$remMonths} أشهر" : "{$months} شهراً");
+                                    $rule = AgeStageRule::where('is_active', true)
                                         ->where('min_age_months', '<=', $months)
                                         ->where('max_age_months', '>', $months)
                                         ->first();
@@ -113,16 +114,17 @@ class ChildResource extends Resource
                                 if (! $date) {
                                     return 'حدد تاريخ الميلاد لعرض المرحلة والقسم المناسب';
                                 }
-                                $birth = \Carbon\Carbon::parse($date);
-                                $months = (int) $birth->diffInMonths(\Carbon\Carbon::now());
-                                $years = (int) $birth->diffInYears(\Carbon\Carbon::now());
+                                $birth = Carbon::parse($date);
+                                $months = (int) $birth->diffInMonths(Carbon::now());
+                                $years = (int) $birth->diffInYears(Carbon::now());
                                 $remMonths = $months % 12;
-                                $ageText = ($years > 0 ? "{$years} سنة " : '') . ($remMonths > 0 ? "و {$remMonths} أشهر" : "{$months} شهراً");
-                                $rule = \Webkul\NurserySubscription\Models\AgeStageRule::where('is_active', true)
+                                $ageText = ($years > 0 ? "{$years} سنة " : '').($remMonths > 0 ? "و {$remMonths} أشهر" : "{$months} شهراً");
+                                $rule = AgeStageRule::where('is_active', true)
                                     ->where('min_age_months', '<=', $months)
                                     ->where('max_age_months', '>', $months)
                                     ->first();
                                 $stageName = $rule ? $rule->name : 'حضانة عامة';
+
                                 return "✨ العمر: {$ageText} | القسم المقترح: {$stageName}";
                             }),
                     ]),
@@ -144,7 +146,7 @@ class ChildResource extends Resource
                             ->reactive()
                             ->afterStateUpdated(function ($state, $set) {
                                 if ($state && strlen($state) >= 9) {
-                                    $other = \Webkul\NurserySubscription\Models\Child::where('guardian_phone', $state)->count();
+                                    $other = Child::where('guardian_phone', $state)->count();
                                     if ($other > 0) {
                                         $set('has_siblings', true);
                                     }
@@ -228,10 +230,10 @@ class ChildResource extends Resource
     public static function getPages(): array
     {
         return [
-            'index' => Pages\ListChildren::route('/'),
+            'index'  => Pages\ListChildren::route('/'),
             'create' => Pages\CreateChild::route('/create'),
-            'edit' => Pages\EditChild::route('/{record}/edit'),
-            'view' => Pages\ViewChild::route('/{record}'),
+            'edit'   => Pages\EditChild::route('/{record}/edit'),
+            'view'   => Pages\ViewChild::route('/{record}'),
         ];
     }
 }

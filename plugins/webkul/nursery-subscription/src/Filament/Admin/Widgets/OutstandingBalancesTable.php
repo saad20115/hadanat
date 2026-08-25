@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Webkul\NurserySubscription\Filament\Admin\Widgets;
 
+use Carbon\Carbon;
 use Filament\Actions\Action;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
@@ -20,7 +21,7 @@ class OutstandingBalancesTable extends BaseWidget
 
     protected static ?int $sort = 4;
 
-    protected int | string | array $columnSpan = 'full';
+    protected int|string|array $columnSpan = 'full';
 
     public function table(Table $table): Table
     {
@@ -74,8 +75,8 @@ class OutstandingBalancesTable extends BaseWidget
                         Select::make('payment_method')
                             ->label('طريقة الدفع')
                             ->options([
-                                'cash' => '💵 نقدي (كاش)',
-                                'card' => '💳 شبكة / بطاقة',
+                                'cash'          => '💵 نقدي (كاش)',
+                                'card'          => '💳 شبكة / بطاقة',
                                 'bank_transfer' => '🏦 تحويل بنكي',
                             ])
                             ->required(),
@@ -88,7 +89,7 @@ class OutstandingBalancesTable extends BaseWidget
                             $record,
                             (float) $data['amount'],
                             $data['payment_method'],
-                            \Carbon\Carbon::now(),
+                            Carbon::now(),
                             $data['reference_number'] ?? null
                         );
 

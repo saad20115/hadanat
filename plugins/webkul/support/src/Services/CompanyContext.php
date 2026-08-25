@@ -45,7 +45,7 @@ class CompanyContext
             return $this->allowed = Company::query()->get();
         }
 
-        return $this->allowed = $user->allowedCompanies()->get();
+        return $this->allowed = $user->allowedCompanies()->get()->unique('id');
     }
 
     public function seesAllCompanies(): bool

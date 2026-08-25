@@ -28,21 +28,21 @@ class NurserySubscriptionPlugin implements Plugin
 
         $panel->when($panel->getId() === 'admin', function (Panel $panel) {
             $panel->discoverResources(
-                in: __DIR__ . '/Filament/Admin/Resources',
+                in: __DIR__.'/Filament/Admin/Resources',
                 for: 'Webkul\\NurserySubscription\\Filament\\Admin\\Resources'
             )
-            ->discoverPages(
-                in: __DIR__ . '/Filament/Admin/Pages',
-                for: 'Webkul\\NurserySubscription\\Filament\\Admin\\Pages'
-            )
-            ->discoverClusters(
-                in: __DIR__ . '/Filament/Admin/Clusters',
-                for: 'Webkul\\NurserySubscription\\Filament\\Admin\\Clusters'
-            )
-            ->discoverWidgets(
-                in: __DIR__ . '/Filament/Admin/Widgets',
-                for: 'Webkul\\NurserySubscription\\Filament\\Admin\\Widgets'
-            );
+                ->discoverPages(
+                    in: __DIR__.'/Filament/Admin/Pages',
+                    for: 'Webkul\\NurserySubscription\\Filament\\Admin\\Pages'
+                )
+                ->discoverClusters(
+                    in: __DIR__.'/Filament/Admin/Clusters',
+                    for: 'Webkul\\NurserySubscription\\Filament\\Admin\\Clusters'
+                )
+                ->discoverWidgets(
+                    in: __DIR__.'/Filament/Admin/Widgets',
+                    for: 'Webkul\\NurserySubscription\\Filament\\Admin\\Widgets'
+                );
         });
 
         $panel->when($panel->getId() === 'customer', function (Panel $panel) {
@@ -50,7 +50,5 @@ class NurserySubscriptionPlugin implements Plugin
         });
     }
 
-    public function boot(Panel $panel): void
-    {
-    }
+    public function boot(Panel $panel): void {}
 }

@@ -17,6 +17,13 @@ class Role extends BaseRole
         'super_admin',
     ];
 
+    protected $fillable = [
+        'name',
+        'guard_name',
+        'default_landing_page',
+        'is_default',
+    ];
+
     public function getNameAttribute(string $value): string
     {
         return Str::ucfirst($value);
@@ -195,5 +202,118 @@ class Role extends BaseRole
         }
 
         $this->forgetCachedPermissions();
+    }
+
+    public static function getLandingPageOptions(): array
+    {
+        return [
+            'براعم (Baraem)' => [
+                'nursery/subscriptions'           => 'الاشتراكات (Subscriptions)',
+                'nursery/children'                => 'الأطفال (Children)',
+                'nursery/payments'                => 'المدفوعات (Payments)',
+                'nursery/pricing-plans'           => 'الباقات والأسعار (Pricing Plans)',
+                'nursery/subscription-calculator' => 'حاسبة الاشتراكات (Calculator)',
+                'nursery/reports'                 => 'لوحة التقارير ومؤشرات الأداء (Reports)',
+                'nursery/academic-years'          => 'التقويم والفصول الأكاديمية (Academic Years)',
+                'nursery/age-stage-rules'         => 'قواعد المراحل العمرية (Age Stages)',
+                'nursery/holidays'                => 'العطلات والإجازات الرسمية (Holidays)',
+                'nursery/company'                 => 'بيانات الحضانة والمنشأة (Company Profile)',
+                'nursery/configurations/users'    => 'المستخدمين والصلاحيات (Users & Roles)',
+            ],
+            'لوحة التحكم الرئيسية' => [
+                'dashboard' => 'لوحة التحكم الرئيسية (Main Dashboard)',
+            ],
+            'المبيعات (Sales)' => [
+                'sales/orders'      => 'أوامر البيع (Sales Orders)',
+                'sales/quotations'  => 'عروض الأسعار (Quotations)',
+                'sales/teams'       => 'فرق المبيعات (Sales Teams)',
+            ],
+            'المشتريات (Purchases)' => [
+                'purchases/orders'        => 'أوامر الشراء (Purchase Orders)',
+                'purchases/requisitions'  => 'طلبات الشراء (Purchase Requisitions)',
+            ],
+            'الفواتير (Invoices)' => [
+                'invoices/invoices' => 'فواتير العملاء والموردين (Invoices)',
+                'invoices/payments' => 'الدفعات والتحصيلات (Payments)',
+            ],
+            'المحاسبة (Accounting)' => [
+                'accounts/accounts' => 'شجرة الحسابات (Chart of Accounts)',
+                'accounts/journals' => 'اليوميات والقيود (Journals)',
+                'accounts/moves'    => 'القيود المحاسبية (Journal Entries)',
+            ],
+            'المخزون (Inventory)' => [
+                'inventories/products'   => 'المنتجات (Products)',
+                'inventories/warehouses' => 'المستودعات (Warehouses)',
+                'inventories/moves'      => 'حركات المخزون (Stock Moves)',
+            ],
+            'الموظفين (Employees)' => [
+                'employees/employees'   => 'سجلات الموظفين (Employees)',
+                'employees/departments' => 'الأقسام الإدارية (Departments)',
+            ],
+            'التوظيف (Recruitment)' => [
+                'recruitments/job-positions' => 'الوظائف الشاغرة (Job Positions)',
+                'recruitments/applicants'    => 'طلبات التوظيف (Applicants)',
+            ],
+            'الإجازات (Time Off)' => [
+                'time-off/leaves'      => 'طلبات الإجازات (Leave Requests)',
+                'time-off/leave-types' => 'أنواع الإجازات (Leave Types)',
+            ],
+            'المشاريع (Projects)' => [
+                'projects/projects' => 'المشاريع والمهام (Projects)',
+            ],
+            'التصنيع (Manufacturing)' => [
+                'manufacturing/orders' => 'أوامر التصنيع (Manufacturing Orders)',
+            ],
+            'الصيانة (Maintenance)' => [
+                'maintenance/requests' => 'طلبات الصيانة (Maintenance Requests)',
+            ],
+            'الموقع الإلكتروني (Website)' => [
+                'website/pages' => 'صفحات الموقع (Website Pages)',
+                'blogs/posts'   => 'المدونات والمقالات (Blog Posts)',
+            ],
+            'جهات الاتصال (Contacts)' => [
+                'contacts/contacts' => 'جهات الاتصال والعملاء (Contacts)',
+            ],
+            'الأمان والإعدادات (Settings)' => [
+                'shield/roles' => 'الأدوار والصلاحيات (Roles)',
+                'users'        => 'المستخدمين (Users)',
+            ],
+            'مدير الإضافات (Plugins)' => [
+                'plugins' => 'مدير الإضافات (Plugins Manager)',
+            ],
+        ];
+    }
+
+    public static function getLandingPageForUser($user): string
+    {
+        if (! $user) {
+            return url('/admin/login');
+        }
+
+        // 1. Check user roles default_landing_page
+        $roles = $user->roles;
+        $configuredRole = null;
+
+        if ($roles instanceof Collection) {
+            $configuredRole = $roles->first(fn ($r) => ! empty($r->default_landing_page));
+        } elseif (method_exists($user, 'roles')) {
+            $configuredRole = $user->roles()->whereNotNull('default_landing_page')->where('default_landing_page', '!=', '')->first();
+        }
+
+        if ($configuredRole && ! empty($configuredRole->default_landing_page)) {
+            $path = ltrim($configuredRole->default_landing_page, '/');
+            if ($path === 'dashboard' || $path === 'admin') {
+                return url('/admin');
+            }
+
+            return url('/admin/'.$path);
+        }
+
+        // 2. If user only has app_nursery, default to /admin/nursery/subscriptions
+        if ($user->can('app_nursery') && ! $user->can('app_security') && ! $user->hasRole('super_admin') && ! $user->hasRole('Super_admin')) {
+            return url('/admin/nursery/subscriptions');
+        }
+
+        return url('/admin');
     }
 }

@@ -55,30 +55,55 @@
                                 $groupLabel = $group->getLabel();
                                 $groupIcon = $group->getIcon();
                                 $itemUrl = $group->getItems()->first()?->getUrl();
+                                $user = auth()->user();
+                                $isSuperAdmin = $user && ($user->hasRole('super_admin') || $user->hasRole('Super_admin') || $user->is_default);
+
+                                $iconPermissionMap = [
+                                    'icon-nursery'       => 'app_nursery',
+                                    'icon-sales'         => 'app_sales',
+                                    'icon-purchases'     => 'app_purchases',
+                                    'icon-invoices'      => 'app_invoices',
+                                    'icon-accounting'    => 'app_accounts',
+                                    'icon-inventories'   => 'app_inventories',
+                                    'icon-employees'     => 'app_employees',
+                                    'icon-recruitments'  => 'app_recruitments',
+                                    'icon-time-offs'     => 'app_time_off',
+                                    'icon-projects'      => 'app_projects',
+                                    'icon-manufacturing' => 'app_manufacturing',
+                                    'icon-maintenance'   => 'app_maintenance',
+                                    'icon-website'       => 'app_website',
+                                    'icon-contacts'      => 'app_contacts',
+                                    'icon-settings'      => 'app_security',
+                                    'icon-plugin'        => 'app_plugins',
+                                    'icon-help'          => 'app_security',
+                                ];
+
+                                $appPerm = $groupIcon ? ($iconPermissionMap[$groupIcon] ?? null) : null;
                             @endphp
 
                             @if (! $groupLabel || ! $itemUrl || ! $groupIcon)
                                 @continue
                             @endif
 
-                            <div
+                            @if ($appPerm && ! $isSuperAdmin && ! $user->can($appPerm))
+                                @continue
+                            @endif
+
+                            <a
+                                href="{{ $itemUrl }}"
                                 @class([
-                                    'fi-topbar-item',
-                                    'fi-active' => $group->isActive(),
+                                    'fi-topbar-item-btn flex flex-col items-center justify-center gap-1.5 rounded-2xl p-2.5 text-center text-xs font-medium transition duration-150',
+                                    'bg-gray-100 dark:bg-white/10 font-bold text-primary-600 dark:text-primary-400 shadow-sm' => $group->isActive(),
+                                    'hover:bg-gray-50 dark:hover:bg-white/5 text-gray-700 dark:text-gray-200' => ! $group->isActive(),
                                 ])
                             >
-                                <a
-                                    href="{{ $itemUrl }}"
-                                    class="fi-topbar-item-btn flex flex-col items-center justify-center gap-2 whitespace-nowrap rounded-lg p-4 text-center text-sm font-medium"
-                                >
-                                    <x-filament::icon
-                                        :icon="$groupIcon"
-                                        style="height: 64px; width: 64px"
-                                    />
+                                <x-filament::icon
+                                    :icon="$groupIcon"
+                                    style="height: 64px; width: 64px"
+                                />
 
-                                    {{ $groupLabel }}
-                                </a>
-                            </div>
+                                <span class="truncate max-w-full text-center">{{ $groupLabel }}</span>
+                            </a>
                         @endforeach
                     </div>
                 </x-filament::dropdown>

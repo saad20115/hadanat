@@ -6,7 +6,6 @@ namespace Webkul\NurserySubscription\Services;
 
 use Carbon\Carbon;
 use Illuminate\Support\Facades\DB;
-use Webkul\NurserySubscription\Enums\AgeStage;
 use Webkul\NurserySubscription\Enums\DurationType;
 use Webkul\NurserySubscription\Enums\PaymentMethod;
 use Webkul\NurserySubscription\Enums\SubscriptionStatus;
@@ -19,10 +18,6 @@ class PricingAndLifecycleService
 {
     /**
      * Calculate the end date for a subscription plan based on the start date.
-     *
-     * @param PricingPlan $plan
-     * @param Carbon $startDate
-     * @return Carbon
      */
     public function calculateEndDate(PricingPlan $plan, Carbon $startDate): Carbon
     {
@@ -52,6 +47,7 @@ class PricingAndLifecycleService
                 // Term 1 (30/08 to 07/01 next year)
                 if (str_contains($label, 'الأول') || $value == 4.25 || ($startMonth >= 8 && $startMonth <= 10)) {
                     $endYear = ($startMonth >= 8) ? $year + 1 : $year;
+
                     return Carbon::create($endYear, 1, 7, 0, 0, 0);
                 }
 
@@ -69,6 +65,7 @@ class PricingAndLifecycleService
                 if ($startMonth >= 7) {
                     return Carbon::create($year + 1, 7, 1, 0, 0, 0);
                 }
+
                 return Carbon::create($year, 7, 1, 0, 0, 0);
             case DurationType::VISIT_PACKAGE:
                 $months = (int) ($plan->visits_period_months ?: 1);
@@ -83,11 +80,6 @@ class PricingAndLifecycleService
 
     /**
      * Calculate net amounts and discounts for a subscription.
-     *
-     * @param PricingPlan $plan
-     * @param Child $child
-     * @param bool $includeTshirt
-     * @return array
      */
     public function calculateNetAmount(PricingPlan $plan, Child $child, bool $includeTshirt = false): array
     {
@@ -112,19 +104,16 @@ class PricingAndLifecycleService
         $netAmount = $basePrice - $discountAmount + $tshirtAmount;
 
         return [
-            'base_price' => round($basePrice, 2),
+            'base_price'           => round($basePrice, 2),
             'sibling_discount_pct' => round($siblingDiscountPct, 2),
-            'discount_amount' => round($discountAmount, 2),
-            'tshirt_amount' => round($tshirtAmount, 2),
-            'net_amount' => round($netAmount, 2),
+            'discount_amount'      => round($discountAmount, 2),
+            'tshirt_amount'        => round($tshirtAmount, 2),
+            'net_amount'           => round($netAmount, 2),
         ];
     }
 
     /**
      * Determine if a child is eligible for a sibling discount.
-     *
-     * @param Child $child
-     * @return bool
      */
     public function determineSiblingEligibility(Child $child): bool
     {
@@ -147,9 +136,6 @@ class PricingAndLifecycleService
 
     /**
      * Determine the correct status for a given subscription based on dates or relations.
-     *
-     * @param Subscription $subscription
-     * @return SubscriptionStatus
      */
     public function determineStatus(Subscription $subscription): SubscriptionStatus
     {
@@ -182,14 +168,7 @@ class PricingAndLifecycleService
     /**
      * Create a new subscription.
      *
-     * @param Child $child
-     * @param PricingPlan $plan
-     * @param Carbon $startDate
-     * @param bool $includeTshirt
-     * @param float|null $initialPayment
-     * @param string|null $paymentMethod
-     * @param int|null $renewalOfId
-     * @return Subscription
+     * @param  string|null  $paymentMethod
      */
     public function createSubscription(
         Child $child,
@@ -223,24 +202,24 @@ class PricingAndLifecycleService
             }
 
             $subscription = new Subscription([
-                'company_id' => $child->company_id,
-                'child_id' => $child->id,
+                'company_id'      => $child->company_id,
+                'child_id'        => $child->id,
                 'pricing_plan_id' => $plan->id,
-                'status' => $status,
-                'start_date' => $startDate->format('Y-m-d'),
-                'end_date' => $endDate->format('Y-m-d'),
-                
-                'base_price' => $pricing['base_price'],
+                'status'          => $status,
+                'start_date'      => $startDate->format('Y-m-d'),
+                'end_date'        => $endDate->format('Y-m-d'),
+
+                'base_price'           => $pricing['base_price'],
                 'sibling_discount_pct' => $pricing['sibling_discount_pct'],
-                'discount_amount' => $pricing['discount_amount'],
-                'tshirt_amount' => $pricing['tshirt_amount'],
-                'net_amount' => $pricing['net_amount'],
-                
-                'paid_amount' => 0.00,
+                'discount_amount'      => $pricing['discount_amount'],
+                'tshirt_amount'        => $pricing['tshirt_amount'],
+                'net_amount'           => $pricing['net_amount'],
+
+                'paid_amount'      => 0.00,
                 'remaining_amount' => $pricing['net_amount'],
-                'includes_tshirt' => $includeTshirt,
+                'includes_tshirt'  => $includeTshirt,
             ]);
-            
+
             $subscription->save();
 
             if ($renewalOfId) {
@@ -248,7 +227,7 @@ class PricingAndLifecycleService
                 if ($oldSub) {
                     $oldSub->status = SubscriptionStatus::RENEWED;
                     $oldSub->save();
-                    
+
                     $subscription->renewal_of_id = $renewalOfId;
                     $subscription->save();
                 }
@@ -264,16 +243,13 @@ class PricingAndLifecycleService
 
     /**
      * Process the renewal of an existing subscription.
-     *
-     * @param Subscription $currentSubscription
-     * @return Subscription
      */
     public function processRenewal(Subscription $currentSubscription): Subscription
     {
         return DB::transaction(function () use ($currentSubscription) {
             $startDate = clone $currentSubscription->end_date;
             $startDate->addDay();
-            
+
             $plan = $currentSubscription->pricingPlan;
             $child = $currentSubscription->child;
             $includeTshirt = (bool) $currentSubscription->includes_tshirt;
@@ -293,13 +269,7 @@ class PricingAndLifecycleService
     /**
      * Record a payment against a subscription.
      *
-     * @param Subscription $subscription
-     * @param float $amount
-     * @param string $paymentMethod
-     * @param Carbon|null $paymentDate
-     * @param string|null $referenceNumber
-     * @param string|null $notes
-     * @return Payment
+     * @param  string  $paymentMethod
      */
     public function recordPayment(
         Subscription $subscription,
@@ -318,15 +288,15 @@ class PricingAndLifecycleService
             $notes
         ) {
             $payment = new Payment([
-                'company_id' => $subscription->company_id,
-                'subscription_id' => $subscription->id,
-                'amount' => $amount,
-                'payment_method' => $paymentMethod,
-                'payment_date' => $paymentDate ?? Carbon::now(),
+                'company_id'       => $subscription->company_id,
+                'subscription_id'  => $subscription->id,
+                'amount'           => $amount,
+                'payment_method'   => $paymentMethod,
+                'payment_date'     => $paymentDate ?? Carbon::now(),
                 'reference_number' => $referenceNumber,
-                'notes' => $notes,
+                'notes'            => $notes,
             ]);
-            
+
             $payment->save();
 
             $subscription->paid_amount += $amount;
@@ -339,47 +309,36 @@ class PricingAndLifecycleService
 
     /**
      * Cancel a subscription.
-     *
-     * @param Subscription $subscription
-     * @param string|null $reason
-     * @return Subscription
      */
     public function cancelSubscription(Subscription $subscription, ?string $reason = null): Subscription
     {
         $subscription->status = SubscriptionStatus::CANCELLED;
         if ($reason !== null) {
-            $subscription->notes = trim($subscription->notes . "\nCancel Reason: " . $reason);
+            $subscription->notes = trim($subscription->notes."\nCancel Reason: ".$reason);
         }
         $subscription->save();
-        
+
         return $subscription;
     }
 
     /**
      * Freeze an active or soon-to-expire subscription.
-     *
-     * @param Subscription $subscription
-     * @param string|null $reason
-     * @return Subscription
      */
     public function freezeSubscription(Subscription $subscription, ?string $reason = null): Subscription
     {
         if (in_array($subscription->status, [SubscriptionStatus::ACTIVE, SubscriptionStatus::EXPIRING_SOON], true)) {
             $subscription->status = SubscriptionStatus::FROZEN;
             if ($reason !== null) {
-                $subscription->notes = trim($subscription->notes . "\nFreeze Reason: " . $reason);
+                $subscription->notes = trim($subscription->notes."\nFreeze Reason: ".$reason);
             }
             $subscription->save();
         }
-        
+
         return $subscription;
     }
 
     /**
      * Unfreeze a subscription and re-determine its correct status.
-     *
-     * @param Subscription $subscription
-     * @return Subscription
      */
     public function unfreezeSubscription(Subscription $subscription): Subscription
     {
@@ -387,7 +346,7 @@ class PricingAndLifecycleService
             $subscription->status = $this->determineStatus($subscription);
             $subscription->save();
         }
-        
+
         return $subscription;
     }
 }

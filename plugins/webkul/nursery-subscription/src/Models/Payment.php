@@ -14,7 +14,7 @@ use Webkul\Support\Traits\BelongsToCompany;
 
 class Payment extends Model
 {
-    use HasFactory, BelongsToCompany;
+    use BelongsToCompany, HasFactory;
 
     protected $table = 'nursery_payments';
 
@@ -30,8 +30,8 @@ class Payment extends Model
     ];
 
     protected $casts = [
-        'amount' => 'decimal:2',
-        'payment_date' => 'date',
+        'amount'         => 'decimal:2',
+        'payment_date'   => 'date',
         'payment_method' => PaymentMethod::class,
     ];
 

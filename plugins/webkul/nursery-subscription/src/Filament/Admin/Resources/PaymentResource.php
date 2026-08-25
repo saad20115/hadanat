@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 namespace Webkul\NurserySubscription\Filament\Admin\Resources;
 
-use Filament\Actions\ViewAction;
 use Filament\Actions\DeleteAction;
+use Filament\Actions\ViewAction;
 use Filament\Forms\Components\DatePicker;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\Textarea;
@@ -16,18 +16,19 @@ use Filament\Schemas\Components\Section;
 use Filament\Schemas\Schema;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Table;
-use Webkul\NurserySubscription\Enums\PaymentMethod;
-use Webkul\NurserySubscription\Filament\Admin\Clusters\NurseryManagement;
 use Webkul\NurserySubscription\Filament\Admin\Resources\PaymentResource\Pages;
 use Webkul\NurserySubscription\Models\Payment;
-
+use Webkul\NurserySubscription\Models\Subscription;
 use Webkul\Support\Enums\NavigationGroup;
 
 class PaymentResource extends Resource
 {
     protected static ?string $model = Payment::class;
+
     protected static ?string $slug = 'nursery/payments';
-    protected static string | \BackedEnum | null $navigationIcon = 'heroicon-o-banknotes';
+
+    protected static string|\BackedEnum|null $navigationIcon = 'heroicon-o-banknotes';
+
     protected static ?int $navigationSort = 6;
 
     public static function getModelLabel(): string
@@ -65,11 +66,11 @@ class PaymentResource extends Resource
                             ->searchable()
                             ->preload()
                             ->relationship('subscription', 'id')
-                            ->getOptionLabelFromRecordUsing(fn ($record) => "👶 {$record->child->full_name} | 📋 {$record->pricingPlan->duration_label} (المتبقي: " . number_format((float)$record->remaining_amount, 2) . " ر.س)")
+                            ->getOptionLabelFromRecordUsing(fn ($record) => "👶 {$record->child->full_name} | 📋 {$record->pricingPlan->duration_label} (المتبقي: ".number_format((float) $record->remaining_amount, 2).' ر.س)')
                             ->reactive()
                             ->afterStateUpdated(function ($state, $set) {
                                 if ($state) {
-                                    $sub = \Webkul\NurserySubscription\Models\Subscription::find($state);
+                                    $sub = Subscription::find($state);
                                     if ($sub && $sub->remaining_amount > 0) {
                                         $set('amount', $sub->remaining_amount);
                                     }
@@ -87,13 +88,13 @@ class PaymentResource extends Resource
                         ToggleButtons::make('payment_method')
                             ->label('طريقة الدفع والتحصيل')
                             ->options([
-                                'cash' => '💵 نقدي (كاش)',
-                                'card' => '💳 شبكة / بطاقة مدى وائتمان',
+                                'cash'          => '💵 نقدي (كاش)',
+                                'card'          => '💳 شبكة / بطاقة مدى وائتمان',
                                 'bank_transfer' => '🏦 تحويل بنكي',
                             ])
                             ->colors([
-                                'cash' => 'success',
-                                'card' => 'primary',
+                                'cash'          => 'success',
+                                'card'          => 'primary',
                                 'bank_transfer' => 'info',
                             ])
                             ->inline()
@@ -153,7 +154,7 @@ class PaymentResource extends Resource
     public static function getPages(): array
     {
         return [
-            'index' => Pages\ListPayments::route('/'),
+            'index'  => Pages\ListPayments::route('/'),
             'create' => Pages\CreatePayment::route('/create'),
         ];
     }

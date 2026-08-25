@@ -4,6 +4,10 @@ declare(strict_types=1);
 
 namespace Webkul\NurserySubscription\Filament\Admin\Resources;
 
+use Carbon\Carbon;
+use Filament\Actions\Action;
+use Filament\Actions\EditAction;
+use Filament\Actions\ViewAction;
 use Filament\Forms\Components\DatePicker;
 use Filament\Forms\Components\Placeholder;
 use Filament\Forms\Components\Select;
@@ -14,29 +18,25 @@ use Filament\Forms\Components\ToggleButtons;
 use Filament\Resources\Resource;
 use Filament\Schemas\Components\Section;
 use Filament\Schemas\Schema;
-use Filament\Actions\Action;
-use Filament\Actions\ViewAction;
-use Filament\Actions\EditAction;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Filters\SelectFilter;
-use Filament\Tables\Filters\Tabs\Tab;
 use Filament\Tables\Table;
-use Illuminate\Database\Eloquent\Builder;
 use Webkul\NurserySubscription\Enums\PaymentMethod;
-use Webkul\NurserySubscription\Filament\Admin\Clusters\NurseryManagement;
 use Webkul\NurserySubscription\Filament\Admin\Resources\SubscriptionResource\Pages;
 use Webkul\NurserySubscription\Models\Child;
 use Webkul\NurserySubscription\Models\PricingPlan;
 use Webkul\NurserySubscription\Models\Subscription;
 use Webkul\NurserySubscription\Services\PricingAndLifecycleService;
-
 use Webkul\Support\Enums\NavigationGroup;
 
 class SubscriptionResource extends Resource
 {
     protected static ?string $model = Subscription::class;
+
     protected static ?string $slug = 'nursery/subscriptions';
-    protected static string | \BackedEnum | null $navigationIcon = 'heroicon-o-clipboard-document-list';
+
+    protected static string|\BackedEnum|null $navigationIcon = 'heroicon-o-clipboard-document-list';
+
     protected static ?int $navigationSort = 1;
 
     public static function getModelLabel(): string
@@ -116,6 +116,7 @@ class SubscriptionResource extends Resource
                                     return '-';
                                 }
                                 $sibling = $child->has_siblings ? '✅ مؤهل لخصم الإخوة (5%)' : '❌ بدون خصم إخوة';
+
                                 return "👶 {$child->full_name} | 🎂 العمر: {$child->age_label} | 🏫 القسم: {$child->age_stage_label} | 👨‍👩‍👧 {$sibling}";
                             }),
                     ]),
@@ -134,10 +135,12 @@ class SubscriptionResource extends Resource
                                 if ($child && $child->age_stage) {
                                     $query->forAgeStage($child->age_stage);
                                 }
+
                                 return $query->get()->mapWithKeys(function ($plan) {
                                     $hours = $plan->hours_per_day ? " ({$plan->hours_per_day} ساعات/يوم)" : '';
+
                                     return [
-                                        $plan->id => "⭐ [{$plan->stage_label}] {$plan->duration_label}{$hours} — " . number_format((float)$plan->price, 2) . " ر.س",
+                                        $plan->id => "⭐ [{$plan->stage_label}] {$plan->duration_label}{$hours} — ".number_format((float) $plan->price, 2).' ر.س',
                                     ];
                                 });
                             })
@@ -161,10 +164,12 @@ class SubscriptionResource extends Resource
                                     $plan = PricingPlan::find($planId);
                                     if ($plan) {
                                         $service = app(PricingAndLifecycleService::class);
-                                        $endDate = $service->calculateEndDate($plan, \Carbon\Carbon::parse($startDate));
-                                        return "📅 " . $endDate->format('Y-m-d') . " (المدة: {$plan->duration_label})";
+                                        $endDate = $service->calculateEndDate($plan, Carbon::parse($startDate));
+
+                                        return '📅 '.$endDate->format('Y-m-d')." (المدة: {$plan->duration_label})";
                                     }
                                 }
+
                                 return 'يتم الحساب تلقائياً فور اختيار الباقة والبداية';
                             }),
                     ]),
@@ -189,6 +194,7 @@ class SubscriptionResource extends Resource
                                     if ($plan && $child) {
                                         $service = app(PricingAndLifecycleService::class);
                                         $p = $service->calculateNetAmount($plan, $child, $includeTshirt);
+
                                         return sprintf(
                                             '💰 السعر الأساسي: %s ر.س  |  🎁 خصم الإخوة (5%%): -%s ر.س  |  👕 التيشيرت: +%s ر.س  ===>  💳 الإجمالي الصافي المطلوب: %s ر.س',
                                             number_format($p['base_price'], 2),
@@ -198,6 +204,7 @@ class SubscriptionResource extends Resource
                                         );
                                     }
                                 }
+
                                 return 'اختر الطفل والباقة لحساب التكلفة الإجمالية والخصومات';
                             }),
                     ]),
@@ -217,13 +224,13 @@ class SubscriptionResource extends Resource
                         ToggleButtons::make('payment_method')
                             ->label('طريقة الدفع والتحصيل')
                             ->options([
-                                'cash' => '💵 نقدي (كاش)',
-                                'card' => '💳 بطاقة / مدى',
+                                'cash'          => '💵 نقدي (كاش)',
+                                'card'          => '💳 بطاقة / مدى',
                                 'bank_transfer' => '🏦 تحويل بنكي',
                             ])
                             ->colors([
-                                'cash' => 'success',
-                                'card' => 'primary',
+                                'cash'          => 'success',
+                                'card'          => 'primary',
                                 'bank_transfer' => 'info',
                             ])
                             ->inline()
@@ -264,13 +271,13 @@ class SubscriptionResource extends Resource
                     ->money('SAR'),
                 TextColumn::make('paid_amount')
                     ->label('المدفوع')
-                    ->formatStateUsing(fn ($record) => $record->remaining_amount <= 0 ? 'كامل (' . number_format((float)$record->paid_amount, 2) . ' ر.س)' : number_format((float)$record->paid_amount, 2) . ' ر.س')
+                    ->formatStateUsing(fn ($record) => $record->remaining_amount <= 0 ? 'كامل ('.number_format((float) $record->paid_amount, 2).' ر.س)' : number_format((float) $record->paid_amount, 2).' ر.س')
                     ->color('success'),
                 TextColumn::make('remaining_amount')
                     ->label('المتبقي')
-                    ->formatStateUsing(fn ($state) => (float)$state <= 0 ? 'كامل (0.00)' : number_format((float)$state, 2) . ' ر.س')
-                    ->badge(fn ($record) => (float)$record->remaining_amount <= 0)
-                    ->color(fn ($record) => (float)$record->remaining_amount > 0 ? 'danger' : 'success'),
+                    ->formatStateUsing(fn ($state) => (float) $state <= 0 ? 'كامل (0.00)' : number_format((float) $state, 2).' ر.س')
+                    ->badge(fn ($record) => (float) $record->remaining_amount <= 0)
+                    ->color(fn ($record) => (float) $record->remaining_amount > 0 ? 'danger' : 'success'),
                 TextColumn::make('status')
                     ->label('الحالة')
                     ->badge(),
@@ -324,7 +331,7 @@ class SubscriptionResource extends Resource
                             $record,
                             (float) $data['amount'],
                             $method,
-                            \Carbon\Carbon::now(),
+                            Carbon::now(),
                             $data['reference_number'] ?? null,
                             $data['notes'] ?? null
                         );
@@ -336,10 +343,10 @@ class SubscriptionResource extends Resource
     public static function getPages(): array
     {
         return [
-            'index' => Pages\ListSubscriptions::route('/'),
+            'index'  => Pages\ListSubscriptions::route('/'),
             'create' => Pages\CreateSubscription::route('/create'),
-            'edit' => Pages\EditSubscription::route('/{record}/edit'),
-            'view' => Pages\ViewSubscription::route('/{record}'),
+            'edit'   => Pages\EditSubscription::route('/{record}/edit'),
+            'view'   => Pages\ViewSubscription::route('/{record}'),
         ];
     }
 }

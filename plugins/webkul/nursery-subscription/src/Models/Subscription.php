@@ -16,7 +16,7 @@ use Webkul\Support\Traits\BelongsToCompany;
 
 class Subscription extends Model
 {
-    use HasFactory, BelongsToCompany;
+    use BelongsToCompany, HasFactory;
 
     protected $table = 'nursery_subscriptions';
 
@@ -41,17 +41,17 @@ class Subscription extends Model
     ];
 
     protected $casts = [
-        'start_date' => 'date',
-        'end_date' => 'date',
-        'base_price' => 'decimal:2',
+        'start_date'           => 'date',
+        'end_date'             => 'date',
+        'base_price'           => 'decimal:2',
         'sibling_discount_pct' => 'decimal:2',
-        'discount_amount' => 'decimal:2',
-        'tshirt_amount' => 'decimal:2',
-        'net_amount' => 'decimal:2',
-        'paid_amount' => 'decimal:2',
-        'remaining_amount' => 'decimal:2',
-        'includes_tshirt' => 'boolean',
-        'status' => SubscriptionStatus::class,
+        'discount_amount'      => 'decimal:2',
+        'tshirt_amount'        => 'decimal:2',
+        'net_amount'           => 'decimal:2',
+        'paid_amount'          => 'decimal:2',
+        'remaining_amount'     => 'decimal:2',
+        'includes_tshirt'      => 'boolean',
+        'status'               => SubscriptionStatus::class,
     ];
 
     protected static function boot()

@@ -15,7 +15,7 @@ use Webkul\Support\Traits\BelongsToCompany;
 
 class AgeStageRule extends Model
 {
-    use HasFactory, BelongsToCompany;
+    use BelongsToCompany, HasFactory;
 
     protected $table = 'nursery_age_stages';
 
@@ -34,8 +34,8 @@ class AgeStageRule extends Model
     protected $casts = [
         'min_age_months' => 'integer',
         'max_age_months' => 'integer',
-        'is_active' => 'boolean',
-        'sort_order' => 'integer',
+        'is_active'      => 'boolean',
+        'sort_order'     => 'integer',
     ];
 
     protected static function boot(): void

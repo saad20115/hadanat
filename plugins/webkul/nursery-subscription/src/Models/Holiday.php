@@ -27,10 +27,10 @@ class Holiday extends Model
     ];
 
     protected $casts = [
-        'start_date' => 'date',
-        'end_date' => 'date',
+        'start_date'            => 'date',
+        'end_date'              => 'date',
         'affects_subscriptions' => 'boolean',
-        'days_count' => 'integer',
+        'days_count'            => 'integer',
     ];
 
     public function academicYear(): BelongsTo

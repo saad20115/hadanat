@@ -1,10 +1,10 @@
 {
     "name": "webkul/nursery-subscription",
-    "description": "Nursery and kindergarten subscription management module",
+    "description": "نظام متكامل لإدارة قبول وتسجيل الأطفال وخطط الاشتراكات للحضانات ورياض الأطفال - Nursery & Kindergarten Subscription Management",
     "authors": [
         {
-            "name": "Aureus ERP",
-            "email": "support@aureuserp.in"
+            "name": "Elite Tech",
+            "email": "info@elitetech.sa"
         }
     ],
     "extra": {

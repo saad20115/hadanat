@@ -22,9 +22,13 @@ use Webkul\NurserySubscription\Models\AgeStageRule;
 class AgeStageRuleResource extends Resource
 {
     protected static ?string $model = AgeStageRule::class;
+
     protected static ?string $slug = 'age-stages';
+
     protected static ?string $cluster = Configurations::class;
-    protected static string | \BackedEnum | null $navigationIcon = 'heroicon-o-user-group';
+
+    protected static string|\BackedEnum|null $navigationIcon = 'heroicon-o-user-group';
+
     protected static ?int $navigationSort = 2;
 
     public static function getModelLabel(): string
@@ -111,12 +115,12 @@ class AgeStageRuleResource extends Resource
 
                 TextColumn::make('min_age_months')
                     ->label('من عمر')
-                    ->formatStateUsing(fn ($state) => $state . ' شهر (' . round($state / 12, 1) . ' سنة)')
+                    ->formatStateUsing(fn ($state) => $state.' شهر ('.round($state / 12, 1).' سنة)')
                     ->sortable(),
 
                 TextColumn::make('max_age_months')
                     ->label('إلى عمر')
-                    ->formatStateUsing(fn ($state) => $state . ' شهر (' . round($state / 12, 1) . ' سنة)')
+                    ->formatStateUsing(fn ($state) => $state.' شهر ('.round($state / 12, 1).' سنة)')
                     ->sortable(),
 
                 TextColumn::make('description')
@@ -137,9 +141,9 @@ class AgeStageRuleResource extends Resource
     public static function getPages(): array
     {
         return [
-            'index' => Pages\ListAgeStageRules::route('/'),
+            'index'  => Pages\ListAgeStageRules::route('/'),
             'create' => Pages\CreateAgeStageRule::route('/create'),
-            'edit' => Pages\EditAgeStageRule::route('/{record}/edit'),
+            'edit'   => Pages\EditAgeStageRule::route('/{record}/edit'),
         ];
     }
 }

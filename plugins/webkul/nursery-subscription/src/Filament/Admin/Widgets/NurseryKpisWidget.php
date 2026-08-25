@@ -10,16 +10,17 @@ use Illuminate\Support\Facades\Auth;
 use Webkul\NurserySubscription\Models\Child;
 use Webkul\NurserySubscription\Models\Payment;
 use Webkul\NurserySubscription\Models\Subscription;
+use Webkul\Support\Services\CompanyContext;
 
 class NurseryKpisWidget extends StatsOverviewWidget
 {
     protected static ?int $sort = 1;
 
-    protected int | string | array $columnSpan = 'full';
+    protected int|string|array $columnSpan = 'full';
 
     protected function getStats(): array
     {
-        $companyId = Auth::user()?->default_company_id ?? 2;
+        $companyId = app(CompanyContext::class)->currentId() ?? Auth::user()?->default_company_id ?? 1;
 
         $totalChildren = Child::where('company_id', $companyId)->count();
         $activeSubs = Subscription::where('company_id', $companyId)->where('status', 'active')->count();
@@ -46,17 +47,17 @@ class NurseryKpisWidget extends StatsOverviewWidget
                 ->descriptionIcon('heroicon-m-clock')
                 ->color($expiringSoon > 0 ? 'warning' : 'gray'),
 
-            Stat::make('إجمالي الإيرادات المحصلة', number_format($totalCollected, 2) . ' ر.س')
+            Stat::make('إجمالي الإيرادات المحصلة', number_format($totalCollected, 2).' ر.س')
                 ->description('المبالغ المستلمة فعلياً')
                 ->descriptionIcon('heroicon-m-banknotes')
                 ->color('success'),
 
-            Stat::make('مبالغ متبقية للتحصيل', number_format($totalOutstanding, 2) . ' ر.س')
+            Stat::make('مبالغ متبقية للتحصيل', number_format($totalOutstanding, 2).' ر.س')
                 ->description('ذمم اشتراكات غير مسددة')
                 ->descriptionIcon('heroicon-m-exclamation-triangle')
                 ->color($totalOutstanding > 0 ? 'danger' : 'gray'),
 
-            Stat::make('نسبة التحصيل المالي', $collectionRate . '%')
+            Stat::make('نسبة التحصيل المالي', $collectionRate.'%')
                 ->description('نسبة المبالغ المسددة من الإجمالي')
                 ->descriptionIcon('heroicon-m-arrow-trending-up')
                 ->color($collectionRate >= 80 ? 'success' : 'warning'),

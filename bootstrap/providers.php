@@ -17,6 +17,7 @@ use Webkul\Inventory\InventoryServiceProvider;
 use Webkul\Invoice\InvoiceServiceProvider;
 use Webkul\Maintenance\MaintenanceServiceProvider;
 use Webkul\Manufacturing\ManufacturingServiceProvider;
+use Webkul\NurserySubscription\NurserySubscriptionServiceProvider;
 use Webkul\Partner\PartnerServiceProvider;
 use Webkul\Payment\PaymentServiceProvider;
 use Webkul\PluginManager\PluginManagerServiceProvider;
@@ -64,5 +65,5 @@ return [
     TimesheetServiceProvider::class,
     WebsiteServiceProvider::class,
     PluginManagerServiceProvider::class,
-    \Webkul\NurserySubscription\NurserySubscriptionServiceProvider::class,
+    NurserySubscriptionServiceProvider::class,
 ];
