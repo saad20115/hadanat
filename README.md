@@ -14,15 +14,18 @@
 <a href="https://packagist.org/packages/aureuserp/aureuserp"><img src="https://poser.pugx.org/aureuserp/aureuserp/license.svg" alt="License"></a>
 </p>
 
-<h1 align="center">Aureus ERP</h1>
+<h1 align="center">Aureus ERP - Hadanat Edition 🏫</h1>
 
 <p align="center">
-  <strong>Open-Source Enterprise Resource Planning for Modern Businesses</strong>
+  <strong>نظام أوريوس المتكامل لإدارة الحضانات ورياض الأطفال والاشتراكات</strong><br>
+  <strong>Open-Source Enterprise Resource Planning & Nursery Subscription Management</strong>
 </p>
 
 <p align="center">
-  Built with Laravel 13 • Powered by FilamentPHP 5 • PHP 8.3+
+  Built with Laravel 11 • Powered by FilamentPHP 5 • PHP 8.3+
 </p>
+
+> 📖 **[انقر هنا للاطلاع على التوثيق الشامل لنظام إدارة الحضانة والتقويم الأكاديمي (NURSERY_SYSTEM_GUIDE.md)](./NURSERY_SYSTEM_GUIDE.md)**
 
 ---
 
