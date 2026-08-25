@@ -39,12 +39,18 @@ enum NavigationGroup: string implements HasIcon, HasLabel
 
     case Plugin = 'plugin';
 
+    case Nursery = 'nursery';
+
     case Setting = 'setting';
 
     case Help = 'help';
 
     public function getLabel(): string
     {
+        if ($this === self::Nursery) {
+            return 'إدارة الحضانة';
+        }
+
         return __('admin.navigation.'.$this->value);
     }
 
@@ -52,6 +58,7 @@ enum NavigationGroup: string implements HasIcon, HasLabel
     {
         return match ($this) {
             self::Dashboard     => 'icon-dashboard',
+            self::Nursery       => 'heroicon-o-academic-cap',
             self::Contact       => 'icon-contacts',
             self::Sale          => 'icon-sales',
             self::Purchase      => 'icon-purchases',

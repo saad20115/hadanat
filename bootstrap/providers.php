@@ -64,4 +64,5 @@ return [
     TimesheetServiceProvider::class,
     WebsiteServiceProvider::class,
     PluginManagerServiceProvider::class,
+    \Webkul\NurserySubscription\NurserySubscriptionServiceProvider::class,
 ];

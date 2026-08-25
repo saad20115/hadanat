@@ -45,6 +45,20 @@ class UserResource extends Resource
         return NavigationGroup::Setting;
     }
 
+    public static function canAccess(): bool
+    {
+        $user = Auth::user();
+
+        return (bool) ($user && ($user->hasRole('Super_admin') || $user->hasRole('super_admin')));
+    }
+
+    public static function shouldRegisterNavigation(): bool
+    {
+        $user = Auth::user();
+
+        return (bool) ($user && ($user->hasRole('Super_admin') || $user->hasRole('super_admin')));
+    }
+
     public static function getGloballySearchableAttributes(): array
     {
         return ['name', 'email'];

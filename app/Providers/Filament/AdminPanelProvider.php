@@ -32,7 +32,7 @@ class AdminPanelProvider extends PanelProvider
 {
     public function panel(Panel $panel): Panel
     {
-        set_time_limit(300);
+        set_time_limit(0);
 
         return $panel
             ->default()

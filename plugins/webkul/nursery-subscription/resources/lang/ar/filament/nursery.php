@@ -1,0 +1,110 @@
+<?php
+
+return [
+    'navigation' => [
+        'group' => 'إدارة الحضانة',
+        'children' => 'الأطفال',
+        'pricing-plans' => 'الباقات والأسعار',
+        'subscriptions' => 'الاشتراكات',
+        'payments' => 'المدفوعات',
+    ],
+    'resources' => [
+        'child' => [
+            'label' => 'طفل',
+            'plural' => 'الأطفال',
+            'fields' => [
+                'full_name' => 'الاسم الكامل',
+                'birth_date' => 'تاريخ الميلاد',
+                'gender' => 'الجنس',
+                'medical_conditions' => 'حالات طبية',
+                'guardian_name' => 'اسم ولي الأمر',
+                'guardian_phone' => 'رقم هاتف ولي الأمر',
+                'guardian_email' => 'البريد الإلكتروني لولي الأمر',
+                'notes' => 'ملاحظات',
+                'age_stage' => 'المرحلة العمرية',
+            ],
+        ],
+        'pricing_plan' => [
+            'label' => 'باقة',
+            'plural' => 'الباقات والأسعار',
+            'fields' => [
+                'name' => 'الاسم',
+                'age_stage' => 'المرحلة العمرية',
+                'duration_type' => 'نوع المدة',
+                'base_price' => 'السعر الأساسي',
+                'is_active' => 'نشط',
+            ],
+        ],
+        'subscription' => [
+            'label' => 'اشتراك',
+            'plural' => 'الاشتراكات',
+            'fields' => [
+                'child_id' => 'الطفل',
+                'pricing_plan_id' => 'الباقة',
+                'start_date' => 'تاريخ البدء',
+                'end_date' => 'تاريخ الانتهاء',
+                'status' => 'الحالة',
+                'base_amount' => 'المبلغ الأساسي',
+                'discount_amount' => 'قيمة الخصم',
+                'net_amount' => 'الإجمالي',
+                'paid_amount' => 'المدفوع',
+                'remaining_amount' => 'المتبقي',
+                'is_frozen' => 'مجمد',
+                'frozen_at' => 'تاريخ التجميد',
+            ],
+        ],
+        'payment' => [
+            'label' => 'دفعة',
+            'plural' => 'المدفوعات',
+            'fields' => [
+                'subscription_id' => 'الاشتراك',
+                'amount' => 'المبلغ',
+                'payment_date' => 'تاريخ الدفع',
+                'payment_method' => 'طريقة الدفع',
+                'reference_number' => 'رقم المرجع',
+                'receipt_number' => 'رقم الإيصال',
+            ],
+        ],
+    ],
+    'enums' => [
+        'age_stage' => [
+            'infant' => 'الرضع',
+            'toddler' => 'البراعم',
+            'kg' => 'رياض الأطفال',
+        ],
+        'duration_type' => [
+            'monthly' => 'شهري',
+            'quarterly' => 'ربع سنوي',
+            'semi_annual' => 'نصف سنوي',
+            'annual' => 'سنوي',
+        ],
+        'status' => [
+            'active' => 'فعّال',
+            'expiring_soon' => 'ينتهي قريباً',
+            'expired' => 'منتهي',
+            'frozen' => 'مجمد',
+            'cancelled' => 'ملغى',
+        ],
+        'payment_method' => [
+            'cash' => 'نقدي',
+            'bank_transfer' => 'تحويل بنكي',
+            'pos' => 'شبكة (POS)',
+            'online' => 'دفع إلكتروني',
+        ],
+    ],
+    'actions' => [
+        'renew' => 'تجديد',
+        'cancel' => 'إلغاء',
+        'freeze' => 'تجميد',
+        'unfreeze' => 'إعادة تفعيل',
+        'add_payment' => 'إضافة دفعة',
+        'print_receipt' => 'طباعة الإيصال',
+    ],
+    'messages' => [
+        'renewed_successfully' => 'تم تجديد الاشتراك بنجاح.',
+        'payment_recorded' => 'تم تسجيل الدفعة بنجاح.',
+        'frozen_successfully' => 'تم تجميد الاشتراك بنجاح.',
+        'unfrozen_successfully' => 'تم إعادة تفعيل الاشتراك بنجاح.',
+        'cancelled_successfully' => 'تم إلغاء الاشتراك بنجاح.',
+    ],
+];

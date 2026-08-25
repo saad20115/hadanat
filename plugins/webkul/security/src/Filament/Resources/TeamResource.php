@@ -34,6 +34,20 @@ class TeamResource extends Resource
         return NavigationGroup::Setting;
     }
 
+    public static function canAccess(): bool
+    {
+        $user = \Illuminate\Support\Facades\Auth::user();
+
+        return (bool) ($user && ($user->hasRole('Super_admin') || $user->hasRole('super_admin')));
+    }
+
+    public static function shouldRegisterNavigation(): bool
+    {
+        $user = \Illuminate\Support\Facades\Auth::user();
+
+        return (bool) ($user && ($user->hasRole('Super_admin') || $user->hasRole('super_admin')));
+    }
+
     public static function form(Schema $schema): Schema
     {
         return TeamForm::configure($schema);

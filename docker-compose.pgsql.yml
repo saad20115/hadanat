@@ -1,0 +1,77 @@
+services:
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile.pgsql
+      args:
+        PHP_VERSION: '8.4'
+    image: hadanat-erp:latest
+    restart: unless-stopped
+    ports:
+      - '80:80'
+      - '443:443'
+    environment:
+      APP_ENV: production
+      APP_DEBUG: 'false'
+      DB_CONNECTION: pgsql
+      DB_HOST: postgres
+      DB_PORT: 5432
+      DB_DATABASE: ${DB_DATABASE:-hadanat_erp}
+      DB_USERNAME: ${DB_USERNAME:-hadanat_user}
+      DB_PASSWORD: ${DB_PASSWORD:-hadanat_secure_pass_2026}
+    volumes:
+      - app-storage:/var/www/aureuserp/storage
+      - certbot-etc:/etc/letsencrypt
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    networks:
+      - hadanat-net
+
+  postgres:
+    image: 'postgres:16-alpine'
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: ${DB_DATABASE:-hadanat_erp}
+      POSTGRES_USER: ${DB_USERNAME:-hadanat_user}
+      POSTGRES_PASSWORD: ${DB_PASSWORD:-hadanat_secure_pass_2026}
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+    ports:
+      - '127.0.0.1:5432:5432'
+    networks:
+      - hadanat-net
+    healthcheck:
+      test: ['CMD-SHELL', 'pg_isready -U ${DB_USERNAME:-hadanat_user} -d ${DB_DATABASE:-hadanat_erp}']
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  redis:
+    image: 'redis:alpine'
+    restart: unless-stopped
+    volumes:
+      - redis-data:/data
+    networks:
+      - hadanat-net
+    healthcheck:
+      test: ['CMD', 'redis-cli', 'ping']
+      interval: 10s
+      timeout: 5s
+      retries: 3
+
+networks:
+  hadanat-net:
+    driver: bridge
+
+volumes:
+  app-storage:
+    driver: local
+  postgres-data:
+    driver: local
+  redis-data:
+    driver: local
+  certbot-etc:
+    driver: local

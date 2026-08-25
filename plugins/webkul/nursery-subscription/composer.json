@@ -1,0 +1,29 @@
+{
+    "name": "webkul/nursery-subscription",
+    "description": "Nursery and kindergarten subscription management module",
+    "authors": [
+        {
+            "name": "Aureus ERP",
+            "email": "support@aureuserp.in"
+        }
+    ],
+    "extra": {
+        "laravel": {
+            "providers": [
+                "Webkul\\NurserySubscription\\NurserySubscriptionServiceProvider"
+            ],
+            "aliases": {}
+        }
+    },
+    "autoload": {
+        "psr-4": {
+            "Webkul\\NurserySubscription\\": "src/",
+            "Webkul\\NurserySubscription\\Database\\Seeders\\": "database/seeders/"
+        }
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "Webkul\\NurserySubscription\\Tests\\": "tests/"
+        }
+    }
+}

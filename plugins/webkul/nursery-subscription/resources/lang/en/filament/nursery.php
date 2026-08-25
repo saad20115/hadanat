@@ -1,0 +1,110 @@
+<?php
+
+return [
+    'navigation' => [
+        'group' => 'Nursery Management',
+        'children' => 'Children',
+        'pricing-plans' => 'Pricing Plans',
+        'subscriptions' => 'Subscriptions',
+        'payments' => 'Payments',
+    ],
+    'resources' => [
+        'child' => [
+            'label' => 'Child',
+            'plural' => 'Children',
+            'fields' => [
+                'full_name' => 'Full Name',
+                'birth_date' => 'Birth Date',
+                'gender' => 'Gender',
+                'medical_conditions' => 'Medical Conditions',
+                'guardian_name' => 'Guardian Name',
+                'guardian_phone' => 'Guardian Phone',
+                'guardian_email' => 'Guardian Email',
+                'notes' => 'Notes',
+                'age_stage' => 'Age Stage',
+            ],
+        ],
+        'pricing_plan' => [
+            'label' => 'Plan',
+            'plural' => 'Pricing Plans',
+            'fields' => [
+                'name' => 'Name',
+                'age_stage' => 'Age Stage',
+                'duration_type' => 'Duration Type',
+                'base_price' => 'Base Price',
+                'is_active' => 'Active',
+            ],
+        ],
+        'subscription' => [
+            'label' => 'Subscription',
+            'plural' => 'Subscriptions',
+            'fields' => [
+                'child_id' => 'Child',
+                'pricing_plan_id' => 'Plan',
+                'start_date' => 'Start Date',
+                'end_date' => 'End Date',
+                'status' => 'Status',
+                'base_amount' => 'Base Amount',
+                'discount_amount' => 'Discount Amount',
+                'net_amount' => 'Net Amount',
+                'paid_amount' => 'Paid Amount',
+                'remaining_amount' => 'Remaining Amount',
+                'is_frozen' => 'Frozen',
+                'frozen_at' => 'Frozen At',
+            ],
+        ],
+        'payment' => [
+            'label' => 'Payment',
+            'plural' => 'Payments',
+            'fields' => [
+                'subscription_id' => 'Subscription',
+                'amount' => 'Amount',
+                'payment_date' => 'Payment Date',
+                'payment_method' => 'Payment Method',
+                'reference_number' => 'Reference Number',
+                'receipt_number' => 'Receipt Number',
+            ],
+        ],
+    ],
+    'enums' => [
+        'age_stage' => [
+            'infant' => 'Infant',
+            'toddler' => 'Toddler',
+            'kg' => 'Kindergarten',
+        ],
+        'duration_type' => [
+            'monthly' => 'Monthly',
+            'quarterly' => 'Quarterly',
+            'semi_annual' => 'Semi-Annual',
+            'annual' => 'Annual',
+        ],
+        'status' => [
+            'active' => 'Active',
+            'expiring_soon' => 'Expiring Soon',
+            'expired' => 'Expired',
+            'frozen' => 'Frozen',
+            'cancelled' => 'Cancelled',
+        ],
+        'payment_method' => [
+            'cash' => 'Cash',
+            'bank_transfer' => 'Bank Transfer',
+            'pos' => 'POS',
+            'online' => 'Online',
+        ],
+    ],
+    'actions' => [
+        'renew' => 'Renew',
+        'cancel' => 'Cancel',
+        'freeze' => 'Freeze',
+        'unfreeze' => 'Unfreeze',
+        'add_payment' => 'Add Payment',
+        'print_receipt' => 'Print Receipt',
+    ],
+    'messages' => [
+        'renewed_successfully' => 'Subscription renewed successfully.',
+        'payment_recorded' => 'Payment recorded successfully.',
+        'frozen_successfully' => 'Subscription frozen successfully.',
+        'unfrozen_successfully' => 'Subscription unfrozen successfully.',
+        'cancelled_successfully' => 'Subscription cancelled successfully.',
+    ],
+];

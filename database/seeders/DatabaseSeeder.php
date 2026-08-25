@@ -19,5 +19,8 @@ class DatabaseSeeder extends Seeder
             SupportDatabaseSeeder::class,
             PluginSeeder::class,
         ]);
+
+        require_once base_path('plugins/webkul/nursery-subscription/database/seeders/PricingPlanSeeder.php');
+        $this->call(\Webkul\NurserySubscription\Database\Seeders\PricingPlanSeeder::class);
     }
 }
