@@ -105,6 +105,25 @@ class BaraemSetupCommand extends Command
             }
         }
 
+        // 4.5 Run Plugin Settings Migrations
+        $this->info('4.5 Running Plugin Settings Migrations...');
+        $settingsIterator = new RecursiveIteratorIterator(new RecursiveDirectoryIterator(base_path('plugins/webkul')));
+        foreach ($settingsIterator as $file) {
+            if ($file->isFile() && str_ends_with($file->getFilename(), '.php')) {
+                $cleanPath = str_replace('\\', '/', $file->getPathname());
+                if (str_contains($cleanPath, 'database/settings')) {
+                    try {
+                        $settingMigration = require $cleanPath;
+                        if (is_object($settingMigration) && method_exists($settingMigration, 'up')) {
+                            $settingMigration->up();
+                        }
+                    } catch (\Throwable $e) {
+                        // ignore if setting already exists
+                    }
+                }
+            }
+        }
+
         // 5. Seed Plugins table
         $this->info('5. Initializing Plugins Registry...');
         Artisan::call('db:seed', [
