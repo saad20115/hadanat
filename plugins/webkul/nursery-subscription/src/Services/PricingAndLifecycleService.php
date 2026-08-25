@@ -47,14 +47,16 @@ class PricingAndLifecycleService
                 $startDay = (int) $startDate->format('j');
                 $year = (int) $startDate->format('Y');
 
+                $label = (string) ($plan->duration_label ?? '');
+
                 // Term 1 (30/08 to 07/01 next year)
-                if (str_contains($plan->duration_label, 'الأول') || $value == 4.25 || ($startMonth >= 8 && $startMonth <= 10)) {
+                if (str_contains($label, 'الأول') || $value == 4.25 || ($startMonth >= 8 && $startMonth <= 10)) {
                     $endYear = ($startMonth >= 8) ? $year + 1 : $year;
                     return Carbon::create($endYear, 1, 7, 0, 0, 0);
                 }
 
                 // Term 2 (17/01 to 01/07)
-                if (str_contains($plan->duration_label, 'الثاني') || $value == 5.5 || ($startMonth >= 1 && $startMonth <= 3)) {
+                if (str_contains($label, 'الثاني') || $value == 5.5 || ($startMonth >= 1 && $startMonth <= 3)) {
                     return Carbon::create($year, 7, 1, 0, 0, 0);
                 }
 

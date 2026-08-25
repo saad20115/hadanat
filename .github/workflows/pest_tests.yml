@@ -58,11 +58,11 @@ jobs:
         with:
           php-version: ${{ matrix.php-versions }}
           extensions: curl, fileinfo, gd, intl, mbstring, openssl, pdo, ${{ matrix.php-db-ext }}, tokenizer, zip
-          ini-values: error_reporting=E_ALL
+          ini-values: error_reporting=E_ALL, memory_limit=1024M
           tools: composer:v2
 
       - name: Running Composer Install
-        run: composer install
+        run: composer install --no-interaction --prefer-dist
 
       - name: Setting Environment
         run: |
@@ -89,4 +89,4 @@ jobs:
             --admin-password="admin123"
 
       - name: Running Pest Test
-        run: vendor/bin/pest --colors=always
+        run: php -d memory_limit=1024M vendor/bin/pest --colors=always
