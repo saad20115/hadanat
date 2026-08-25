@@ -19,7 +19,7 @@ class AdminUserSeeder extends Seeder
         if (! DB::table('partners_partners')->where('id', 1)->exists()) {
             DB::table('partners_partners')->insert([
                 'id'         => 1,
-                'name'       => 'شركة براعم لخدمات رياض الأطفال والحضانات',
+                'name'       => 'مدرسة العقول النامية الأهلية',
                 'email'      => 'info@hadanat.com',
                 'account_type' => 'company',
                 'created_at' => now(),
@@ -31,7 +31,7 @@ class AdminUserSeeder extends Seeder
         if (! DB::table('companies')->where('id', 1)->exists()) {
             DB::table('companies')->insert([
                 'id'          => 1,
-                'name'        => 'شركة براعم لخدمات رياض الأطفال والحضانات',
+                'name'        => 'مدرسة العقول النامية الأهلية',
                 'partner_id'  => 1,
                 'currency_id' => $sarId,
                 'created_at'  => now(),
