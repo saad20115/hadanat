@@ -29,11 +29,18 @@ class CurrencySeeder extends Seeder
                 return $currency;
             })->toArray();
 
-            DB::table('currencies')->upsert(
-                $currencies,
-                ['name'],
-                ['full_name', 'symbol', 'iso_numeric', 'decimal_places', 'rounding', 'active', 'updated_at']
-            );
+            if (DB::table('currencies')->count() === 0) {
+                foreach (array_chunk($currencies, 50) as $chunk) {
+                    DB::table('currencies')->insert($chunk);
+                }
+            } else {
+                foreach ($currencies as $currency) {
+                    DB::table('currencies')->updateOrInsert(
+                        ['name' => $currency['name']],
+                        $currency
+                    );
+                }
+            }
         }
     }
 }
