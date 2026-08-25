@@ -96,8 +96,13 @@
 <body>
     <div class="receipt-container">
         <div class="header">
-            <h1>أوريوس حضانات</h1>
-            <p>سند قبض / إيصال دفع</p>
+            <h1>{{ config('school.company_name', 'مدرسة العقول النامية الأهلية') }}</h1>
+            <p style="font-size: 13px; color: #555; margin: 4px 0;">
+                الرقم الضريبي: <strong>{{ config('school.vat_number', '310623259700003') }}</strong> | 
+                السجل التجاري: <strong>{{ config('school.cr_number', '7015447258') }}</strong>
+            </p>
+            <p style="font-size: 12px; color: #777; margin: 2px 0;">{{ config('school.address', 'جدة - المملكة العربية السعودية') }}</p>
+            <h2 style="font-size: 18px; color: #005f73; margin-top: 10px; margin-bottom: 0;">سند قبض / إيصال سداد رسوم</h2>
         </div>
         
         <div class="receipt-info">
