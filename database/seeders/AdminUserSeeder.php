@@ -39,6 +39,12 @@ class AdminUserSeeder extends Seeder
             ]);
         }
 
+        if (DB::getDriverName() === 'pgsql') {
+            DB::statement("SELECT setval(pg_get_serial_sequence('partners_partners', 'id'), coalesce(max(id), 1)) FROM partners_partners");
+            DB::statement("SELECT setval(pg_get_serial_sequence('companies', 'id'), coalesce(max(id), 1)) FROM companies");
+            DB::statement("SELECT setval(pg_get_serial_sequence('users', 'id'), coalesce(max(id), 1)) FROM users");
+        }
+
         // 4. Ensure Super Admin Role
         $role = Role::firstOrCreate(['name' => 'super_admin', 'guard_name' => 'web']);
 

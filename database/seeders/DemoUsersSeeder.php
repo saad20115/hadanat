@@ -35,6 +35,12 @@ class DemoUsersSeeder extends Seeder
             ]);
         }
 
+        if (DB::getDriverName() === 'pgsql') {
+            DB::statement("SELECT setval(pg_get_serial_sequence('partners_partners', 'id'), coalesce(max(id), 1)) FROM partners_partners");
+            DB::statement("SELECT setval(pg_get_serial_sequence('companies', 'id'), coalesce(max(id), 1)) FROM companies");
+            DB::statement("SELECT setval(pg_get_serial_sequence('users', 'id'), coalesce(max(id), 1)) FROM users");
+        }
+
         $roles = [
             'super_admin'        => 'مدير عام النظام',
             'nursery_manager'    => 'مدير الحضانة',
