@@ -11,13 +11,41 @@ class AdminUserSeeder extends Seeder
 {
     public function run(): void
     {
+        // 1. Ensure SAR currency exists
+        $sarId = DB::table('currencies')->where('name', 'SAR')->value('id') ?? 150;
+
+        // 2. Ensure Partner 1 exists
+        if (! DB::table('partners_partners')->where('id', 1)->exists()) {
+            DB::table('partners_partners')->insert([
+                'id'         => 1,
+                'name'       => 'شركة براعم لخدمات رياض الأطفال والحضانات',
+                'email'      => 'info@hadanat.com',
+                'is_company' => true,
+                'created_at' => now(),
+                'updated_at' => now(),
+            ]);
+        }
+
+        // 3. Ensure Company 1 exists
+        if (! DB::table('companies')->where('id', 1)->exists()) {
+            DB::table('companies')->insert([
+                'id'          => 1,
+                'name'        => 'شركة براعم لخدمات رياض الأطفال والحضانات',
+                'partner_id'  => 1,
+                'currency_id' => $sarId,
+                'created_at'  => now(),
+                'updated_at'  => now(),
+            ]);
+        }
+
+        // 4. Ensure Super Admin Role
         $role = Role::firstOrCreate(['name' => 'super_admin', 'guard_name' => 'web']);
 
         $user = User::updateOrCreate(
             ['email' => 'admin@hadanat.com'],
             [
-                'name'               => 'مدير النظام والحضانة',
-                'password'           => Hash::make('password123'),
+                'name'               => 'المدير العام (Super Admin)',
+                'password'           => 'password123',
                 'default_company_id' => 1,
                 'is_active'          => true,
                 'is_default'         => true,

@@ -11,6 +11,30 @@ class DemoUsersSeeder extends Seeder
 {
     public function run(): void
     {
+        $sarId = DB::table('currencies')->where('name', 'SAR')->value('id') ?? 150;
+
+        if (! DB::table('partners_partners')->where('id', 1)->exists()) {
+            DB::table('partners_partners')->insert([
+                'id'         => 1,
+                'name'       => 'شركة براعم لخدمات رياض الأطفال والحضانات',
+                'email'      => 'info@hadanat.com',
+                'is_company' => true,
+                'created_at' => now(),
+                'updated_at' => now(),
+            ]);
+        }
+
+        if (! DB::table('companies')->where('id', 1)->exists()) {
+            DB::table('companies')->insert([
+                'id'          => 1,
+                'name'        => 'شركة براعم لخدمات رياض الأطفال والحضانات',
+                'partner_id'  => 1,
+                'currency_id' => $sarId,
+                'created_at'  => now(),
+                'updated_at'  => now(),
+            ]);
+        }
+
         $roles = [
             'super_admin'        => 'مدير عام النظام',
             'nursery_manager'    => 'مدير الحضانة',
