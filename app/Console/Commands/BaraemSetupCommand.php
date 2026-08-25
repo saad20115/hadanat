@@ -124,11 +124,22 @@ class BaraemSetupCommand extends Command
             }
         }
 
-        // 5. Seed Plugins table
-        $this->info('5. Initializing Plugins Registry...');
+        // 5. Seed Plugins table & activate allowed modules
+        $this->info('5. Initializing Plugins Registry & Activating Modules...');
         Artisan::call('db:seed', [
             '--class' => 'Webkul\\PluginManager\\Database\\Seeders\\PluginSeeder',
             '--force' => true,
+        ]);
+
+        $excluded = ['inventories', 'manufacturing', 'barcode'];
+        DB::table('plugins')->whereIn('name', $excluded)->update([
+            'is_installed' => false,
+            'is_active'    => false,
+        ]);
+
+        DB::table('plugins')->whereNotIn('name', $excluded)->update([
+            'is_installed' => true,
+            'is_active'    => true,
         ]);
 
         // 6. Seed Users
