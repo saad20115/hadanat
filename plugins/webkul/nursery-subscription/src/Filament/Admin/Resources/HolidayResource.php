@@ -21,9 +21,12 @@ use Filament\Tables\Table;
 use Webkul\NurserySubscription\Filament\Admin\Clusters\Configurations;
 use Webkul\NurserySubscription\Filament\Admin\Resources\HolidayResource\Pages;
 use Webkul\NurserySubscription\Models\Holiday;
+use Webkul\NurserySubscription\Traits\HandlesNurseryAuthorization;
 
 class HolidayResource extends Resource
 {
+    use HandlesNurseryAuthorization;
+
     protected static ?string $model = Holiday::class;
 
     protected static ?string $slug = 'holidays';

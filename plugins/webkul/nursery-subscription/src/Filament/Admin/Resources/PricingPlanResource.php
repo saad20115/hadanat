@@ -25,10 +25,13 @@ use Webkul\NurserySubscription\Enums\AgeStage;
 use Webkul\NurserySubscription\Enums\DurationType;
 use Webkul\NurserySubscription\Filament\Admin\Resources\PricingPlanResource\Pages;
 use Webkul\NurserySubscription\Models\PricingPlan;
+use Webkul\NurserySubscription\Traits\HandlesNurseryAuthorization;
 use Webkul\Support\Enums\NavigationGroup;
 
 class PricingPlanResource extends Resource
 {
+    use HandlesNurseryAuthorization;
+
     protected static ?string $model = PricingPlan::class;
 
     protected static ?string $slug = 'nursery/pricing-plans';

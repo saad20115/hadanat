@@ -27,10 +27,13 @@ use Webkul\NurserySubscription\Models\Child;
 use Webkul\NurserySubscription\Models\PricingPlan;
 use Webkul\NurserySubscription\Models\Subscription;
 use Webkul\NurserySubscription\Services\PricingAndLifecycleService;
+use Webkul\NurserySubscription\Traits\HandlesNurseryAuthorization;
 use Webkul\Support\Enums\NavigationGroup;
 
 class SubscriptionResource extends Resource
 {
+    use HandlesNurseryAuthorization;
+
     protected static ?string $model = Subscription::class;
 
     protected static ?string $slug = 'nursery/subscriptions';

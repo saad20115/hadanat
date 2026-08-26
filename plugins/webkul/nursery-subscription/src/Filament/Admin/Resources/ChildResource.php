@@ -24,10 +24,13 @@ use Filament\Tables\Table;
 use Webkul\NurserySubscription\Filament\Admin\Resources\ChildResource\Pages;
 use Webkul\NurserySubscription\Models\AgeStageRule;
 use Webkul\NurserySubscription\Models\Child;
+use Webkul\NurserySubscription\Traits\HandlesNurseryAuthorization;
 use Webkul\Support\Enums\NavigationGroup;
 
 class ChildResource extends Resource
 {
+    use HandlesNurseryAuthorization;
+
     protected static ?string $model = Child::class;
 
     protected static ?string $slug = 'nursery/children';

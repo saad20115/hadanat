@@ -19,10 +19,13 @@ use Filament\Tables\Table;
 use Webkul\NurserySubscription\Filament\Admin\Resources\PaymentResource\Pages;
 use Webkul\NurserySubscription\Models\Payment;
 use Webkul\NurserySubscription\Models\Subscription;
+use Webkul\NurserySubscription\Traits\HandlesNurseryAuthorization;
 use Webkul\Support\Enums\NavigationGroup;
 
 class PaymentResource extends Resource
 {
+    use HandlesNurseryAuthorization;
+
     protected static ?string $model = Payment::class;
 
     protected static ?string $slug = 'nursery/payments';

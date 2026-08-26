@@ -18,9 +18,12 @@ use Filament\Tables\Table;
 use Webkul\NurserySubscription\Filament\Admin\Clusters\Configurations;
 use Webkul\NurserySubscription\Filament\Admin\Resources\AgeStageRuleResource\Pages;
 use Webkul\NurserySubscription\Models\AgeStageRule;
+use Webkul\NurserySubscription\Traits\HandlesNurseryAuthorization;
 
 class AgeStageRuleResource extends Resource
 {
+    use HandlesNurseryAuthorization;
+
     protected static ?string $model = AgeStageRule::class;
 
     protected static ?string $slug = 'age-stages';

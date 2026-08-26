@@ -20,9 +20,12 @@ use Webkul\NurserySubscription\Filament\Admin\Clusters\Configurations;
 use Webkul\NurserySubscription\Filament\Admin\Resources\AcademicYearResource\Pages;
 use Webkul\NurserySubscription\Filament\Admin\Resources\AcademicYearResource\RelationManagers\TermsRelationManager;
 use Webkul\NurserySubscription\Models\AcademicYear;
+use Webkul\NurserySubscription\Traits\HandlesNurseryAuthorization;
 
 class AcademicYearResource extends Resource
 {
+    use HandlesNurseryAuthorization;
+
     protected static ?string $model = AcademicYear::class;
 
     protected static ?string $slug = 'academic-years';
