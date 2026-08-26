@@ -45,13 +45,12 @@ class Payment extends Model
             }
         });
 
-        static::created(function ($payment) {
-            $subscription = $payment->subscription;
-            if ($subscription) {
-                $subscription->paid_amount += $payment->amount;
-                $subscription->remaining_amount = $subscription->net_amount - $subscription->paid_amount;
-                $subscription->save();
-            }
+        static::saved(function ($payment) {
+            $payment->subscription?->recalculatePayments();
+        });
+
+        static::deleted(function ($payment) {
+            $payment->subscription?->recalculatePayments();
         });
     }
 

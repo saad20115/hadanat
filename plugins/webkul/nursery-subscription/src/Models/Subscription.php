@@ -108,4 +108,12 @@ class Subscription extends Model
     {
         return (float) $this->remaining_amount <= 0;
     }
+
+    public function recalculatePayments(): void
+    {
+        $totalPaid = (float) $this->payments()->sum('amount');
+        $this->paid_amount = $totalPaid;
+        $this->remaining_amount = max(0.00, (float) $this->net_amount - $totalPaid);
+        $this->saveQuietly();
+    }
 }

@@ -274,11 +274,11 @@ class SubscriptionResource extends Resource
                     ->money('SAR'),
                 TextColumn::make('paid_amount')
                     ->label('المدفوع')
-                    ->formatStateUsing(fn ($record) => $record->remaining_amount <= 0 ? 'كامل ('.number_format((float) $record->paid_amount, 2).' ر.س)' : number_format((float) $record->paid_amount, 2).' ر.س')
+                    ->formatStateUsing(fn ($state) => number_format((float) $state, 2).' ر.س')
                     ->color('success'),
                 TextColumn::make('remaining_amount')
                     ->label('المتبقي')
-                    ->formatStateUsing(fn ($state) => (float) $state <= 0 ? 'كامل (0.00)' : number_format((float) $state, 2).' ر.س')
+                    ->formatStateUsing(fn ($state) => (float) $state <= 0 ? 'مسدد بالكامل (0.00)' : number_format((float) $state, 2).' ر.س')
                     ->badge(fn ($record) => (float) $record->remaining_amount <= 0)
                     ->color(fn ($record) => (float) $record->remaining_amount > 0 ? 'danger' : 'success'),
                 TextColumn::make('status')

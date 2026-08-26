@@ -414,5 +414,10 @@ class NurseryDemoDataSeeder extends Seeder
                 'creator_id'     => $creatorId,
             ]
         );
+
+        // Ensure 100% precision and synchronization across all subscriptions
+        foreach (Subscription::all() as $sub) {
+            $sub->recalculatePayments();
+        }
     }
 }
