@@ -41,17 +41,61 @@ class DemoUsersSeeder extends Seeder
             DB::statement("SELECT setval(pg_get_serial_sequence('users', 'id'), coalesce(max(id), 1)) FROM users");
         }
 
+        $nurseryAllPermissions = [
+            'app_nursery',
+            'view_any_nursery_subscription_subscription', 'view_nursery_subscription_subscription', 'create_nursery_subscription_subscription', 'update_nursery_subscription_subscription', 'delete_nursery_subscription_subscription', 'delete_any_nursery_subscription_subscription', 'restore_nursery_subscription_subscription', 'restore_any_nursery_subscription_subscription', 'force_delete_nursery_subscription_subscription', 'force_delete_any_nursery_subscription_subscription',
+            'view_any_nursery_subscription_child', 'view_nursery_subscription_child', 'create_nursery_subscription_child', 'update_nursery_subscription_child', 'delete_nursery_subscription_child', 'delete_any_nursery_subscription_child', 'restore_nursery_subscription_child', 'restore_any_nursery_subscription_child', 'force_delete_nursery_subscription_child', 'force_delete_any_nursery_subscription_child',
+            'view_any_nursery_subscription_payment', 'view_nursery_subscription_payment', 'create_nursery_subscription_payment', 'update_nursery_subscription_payment', 'delete_nursery_subscription_payment', 'delete_any_nursery_subscription_payment',
+            'view_any_nursery_subscription_pricing::plan', 'view_nursery_subscription_pricing::plan', 'create_nursery_subscription_pricing::plan', 'update_nursery_subscription_pricing::plan', 'delete_nursery_subscription_pricing::plan', 'delete_any_nursery_subscription_pricing::plan',
+            'view_any_nursery_subscription_age::stage::rule', 'view_nursery_subscription_age::stage::rule', 'create_nursery_subscription_age::stage::rule', 'update_nursery_subscription_age::stage::rule',
+            'view_any_nursery_subscription_academic::year', 'view_nursery_subscription_academic::year', 'create_nursery_subscription_academic::year', 'update_nursery_subscription_academic::year',
+            'view_any_nursery_subscription_holiday', 'view_nursery_subscription_holiday', 'create_nursery_subscription_holiday', 'update_nursery_subscription_holiday',
+            'page_nursery_subscription_nursery_reports', 'page_nursery_subscription_subscription_calculator',
+        ];
+
         $roles = [
-            'super_admin'        => ['label' => 'مدير عام النظام', 'landing' => 'dashboard'],
-            'nursery_manager'    => ['label' => 'مدير الحضانة', 'landing' => 'nursery/subscriptions'],
-            'nursery_accountant' => ['label' => 'محاسب الحضانة', 'landing' => 'nursery/payments'],
-            'nursery_registrar'  => ['label' => 'مسؤول التسجيل والاستقبال', 'landing' => 'nursery/children'],
-            'nursery_supervisor' => ['label' => 'مشرفة الحضانة', 'landing' => 'nursery/children'],
+            'super_admin'        => ['label' => 'مدير عام النظام', 'landing' => 'dashboard', 'perms' => null],
+            'nursery_manager'    => ['label' => 'مدير الحضانة', 'landing' => 'nursery/subscriptions', 'perms' => $nurseryAllPermissions],
+            'nursery_accountant' => ['label' => 'محاسب الحضانة', 'landing' => 'nursery/payments', 'perms' => [
+                'app_nursery', 'app_invoices', 'app_accounts',
+                'view_any_nursery_subscription_payment', 'view_nursery_subscription_payment', 'create_nursery_subscription_payment', 'update_nursery_subscription_payment',
+                'view_any_nursery_subscription_subscription', 'view_nursery_subscription_subscription',
+                'view_any_nursery_subscription_child', 'view_nursery_subscription_child',
+                'view_any_nursery_subscription_pricing::plan', 'view_nursery_subscription_pricing::plan',
+                'page_nursery_subscription_nursery_reports', 'page_nursery_subscription_subscription_calculator',
+            ]],
+            'nursery_registrar'  => ['label' => 'مسؤول التسجيل والاستقبال', 'landing' => 'nursery/children', 'perms' => [
+                'app_nursery',
+                'view_any_nursery_subscription_child', 'view_nursery_subscription_child', 'create_nursery_subscription_child', 'update_nursery_subscription_child',
+                'view_any_nursery_subscription_subscription', 'view_nursery_subscription_subscription', 'create_nursery_subscription_subscription', 'update_nursery_subscription_subscription',
+                'view_any_nursery_subscription_pricing::plan', 'view_nursery_subscription_pricing::plan',
+                'page_nursery_subscription_subscription_calculator',
+            ]],
+            'nursery_supervisor' => ['label' => 'مشرفة الحضانة', 'landing' => 'nursery/children', 'perms' => [
+                'app_nursery',
+                'view_any_nursery_subscription_child', 'view_nursery_subscription_child', 'update_nursery_subscription_child',
+                'view_any_nursery_subscription_subscription', 'view_nursery_subscription_subscription',
+                'page_nursery_subscription_nursery_reports',
+            ]],
         ];
 
         foreach ($roles as $roleName => $roleData) {
             $role = Role::firstOrCreate(['name' => $roleName, 'guard_name' => 'web']);
             $role->update(['default_landing_page' => $roleData['landing']]);
+
+            if (is_array($roleData['perms'])) {
+                $role->syncPermissionsByNames($roleData['perms']);
+            }
+
+            // Also sync alias with Title Case / spaces if exists in DB
+            $spaceAlias = ucwords(str_replace('_', ' ', $roleName));
+            $aliasRole = Role::where('name', $spaceAlias)->first();
+            if ($aliasRole) {
+                $aliasRole->update(['default_landing_page' => $roleData['landing']]);
+                if (is_array($roleData['perms'])) {
+                    $aliasRole->syncPermissionsByNames($roleData['perms']);
+                }
+            }
         }
 
         $users = [

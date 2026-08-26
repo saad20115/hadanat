@@ -308,6 +308,62 @@ class RoleResource extends RolesRoleResource
             ->values();
     }
 
+    public static function expandAppPermissionsToModulePermissions(Collection $permissions): Collection
+    {
+        $selectedPerms = clone $permissions;
+
+        $modulePluginMap = [
+            'app_nursery'       => 'NurserySubscription',
+            'app_sales'         => 'Sale',
+            'app_purchases'     => 'Purchase',
+            'app_invoices'      => 'Invoice',
+            'app_accounts'      => 'Account',
+            'app_inventories'   => 'Inventory',
+            'app_employees'     => 'Employee',
+            'app_recruitments'  => 'Recruitment',
+            'app_time_off'      => 'TimeOff',
+            'app_projects'      => 'Project',
+            'app_manufacturing' => 'Manufacturing',
+            'app_maintenance'   => 'Maintenance',
+            'app_website'       => 'Website',
+            'app_contacts'      => 'Contact',
+            'app_plugins'       => 'PluginManager',
+            'app_security'      => 'Security',
+        ];
+
+        $allPluginResources = static::getPluginResources() ?? [];
+        $allPluginPages = static::getPluginPages() ?? [];
+        $allPluginWidgets = static::getPluginWidgets() ?? [];
+
+        foreach ($modulePluginMap as $appPerm => $pluginNamespace) {
+            if ($selectedPerms->contains($appPerm)) {
+                // 1. Inherit all resource permissions for this plugin
+                if (isset($allPluginResources[$pluginNamespace])) {
+                    foreach ($allPluginResources[$pluginNamespace] as $entity) {
+                        $resPerms = array_keys(static::getResourcePermissionOptions($entity));
+                        $selectedPerms = $selectedPerms->merge($resPerms);
+                    }
+                }
+
+                // 2. Inherit all page permissions for this plugin
+                if (isset($allPluginPages[$pluginNamespace])) {
+                    foreach ($allPluginPages[$pluginNamespace] as $pageClass) {
+                        $selectedPerms->push(static::getPagePermissionOptions($pageClass));
+                    }
+                }
+
+                // 3. Inherit all widget permissions for this plugin
+                if (isset($allPluginWidgets[$pluginNamespace])) {
+                    foreach ($allPluginWidgets[$pluginNamespace] as $widgetClass) {
+                        $selectedPerms->push(static::getWidgetPermissionOptions($widgetClass));
+                    }
+                }
+            }
+        }
+
+        return $selectedPerms->filter()->unique()->values();
+    }
+
     public static function getPluginResources(): ?array
     {
         return once(fn (): array => collect(static::getResources())

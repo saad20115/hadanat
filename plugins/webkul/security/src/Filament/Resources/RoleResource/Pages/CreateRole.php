@@ -30,11 +30,13 @@ class CreateRole extends CreateRecord
         } elseif ($mode === 'none') {
             $this->permissions = collect();
         } else {
-            $this->permissions = collect($data)
+            $rawPermissions = collect($data)
                 ->filter(fn ($permission, $key) => ! in_array($key, ['name', 'guard_name', 'permissions_sync_mode', 'select_all'], true))
                 ->values()
                 ->flatten()
                 ->unique();
+
+            $this->permissions = RoleResource::expandAppPermissionsToModulePermissions($rawPermissions);
         }
 
         return [
