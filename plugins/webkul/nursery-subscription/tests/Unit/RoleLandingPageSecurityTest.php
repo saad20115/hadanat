@@ -6,11 +6,12 @@ use Webkul\Security\Models\Role;
 use Webkul\Security\Models\User;
 
 it('ensures getLandingPageForUser returns correct configured role landing page', function () {
-    $role = Mockery::mock(Role::class)->makePartial();
-    $role->default_landing_page = 'nursery/subscriptions';
+    $role = (object) ['default_landing_page' => 'nursery/subscriptions'];
 
     $user = Mockery::mock(User::class)->makePartial();
     $user->roles = collect([$role]);
+    $user->is_default = false;
+    $user->shouldReceive('hasRole')->andReturn(false);
 
     $url = Role::getLandingPageForUser($user);
     expect($url)->toBe('/admin/nursery/subscriptions');
@@ -25,4 +26,15 @@ it('ensures getLandingPageForUser falls back to nursery subscriptions if user ha
 
     $url = Role::getLandingPageForUser($user);
     expect($url)->toBe('/admin/nursery/subscriptions');
+});
+
+it('ensures super admin defaults to nursery reports', function () {
+    $user = Mockery::mock(User::class)->makePartial();
+    $user->roles = collect();
+    $user->is_default = false;
+    $user->shouldReceive('hasRole')->with('super_admin')->andReturn(true);
+    $user->shouldReceive('hasRole')->with('Super_admin')->andReturn(false);
+
+    $url = Role::getLandingPageForUser($user);
+    expect($url)->toBe('/admin/nursery/reports');
 });

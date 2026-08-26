@@ -290,30 +290,46 @@ class Role extends BaseRole
             return '/admin/login';
         }
 
-        // 1. Check user roles default_landing_page
+        $isSuperAdmin = $user->hasRole('super_admin') || $user->hasRole('Super_admin') || (bool) ($user->is_default ?? false);
+
+        // 1. Check user roles explicit default_landing_page
         $roles = $user->roles;
         $configuredRole = null;
 
         if ($roles instanceof Collection) {
-            $configuredRole = $roles->first(fn ($r) => ! empty($r->default_landing_page));
+            $configuredRole = $roles->first(fn ($r) => ! empty($r->default_landing_page) && ! in_array($r->default_landing_page, ['admin', 'dashboard']));
         } elseif (method_exists($user, 'roles')) {
-            $configuredRole = $user->roles()->whereNotNull('default_landing_page')->where('default_landing_page', '!=', '')->first();
+            $configuredRole = $user->roles()
+                ->whereNotNull('default_landing_page')
+                ->whereNotIn('default_landing_page', ['', 'admin', 'dashboard'])
+                ->first();
         }
 
         if ($configuredRole && ! empty($configuredRole->default_landing_page)) {
             $path = ltrim($configuredRole->default_landing_page, '/');
-            if ($path === 'dashboard' || $path === 'admin') {
-                return '/admin';
-            }
 
             return '/admin/'.$path;
         }
 
-        // 2. If user only has app_nursery, default to /admin/nursery/subscriptions
-        if ($user->can('app_nursery') && ! $user->can('app_security') && ! $user->hasRole('super_admin') && ! $user->hasRole('Super_admin')) {
+        // 2. Super Admin defaults to Nursery Reports
+        if ($isSuperAdmin) {
+            return '/admin/nursery/reports';
+        }
+
+        // 3. Fallback based on specific role names
+        if ($user->hasRole('nursery_manager') || $user->hasRole('manager')) {
             return '/admin/nursery/subscriptions';
         }
 
-        return '/admin';
+        if ($user->hasRole('nursery_accountant') || $user->hasRole('accountant')) {
+            return '/admin/nursery/payments';
+        }
+
+        if ($user->hasRole('nursery_registrar') || $user->hasRole('registrar') || $user->hasRole('nursery_supervisor') || $user->hasRole('supervisor')) {
+            return '/admin/nursery/children';
+        }
+
+        // 4. General Default for everyone is Baraem Subscriptions
+        return '/admin/nursery/subscriptions';
     }
 }
