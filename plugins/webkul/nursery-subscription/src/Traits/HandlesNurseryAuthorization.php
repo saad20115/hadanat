@@ -4,35 +4,43 @@ declare(strict_types=1);
 
 namespace Webkul\NurserySubscription\Traits;
 
+use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Auth;
-use Webkul\Security\Models\User;
 
 trait HandlesNurseryAuthorization
 {
-    public function before(User $user, string $ability): ?bool
+    public function before($user, string $ability): ?bool
     {
-        if ($user->hasRole('super_admin') || $user->hasRole('Super_admin') || (bool) ($user->is_default ?? false)) {
+        if (! $user) {
+            return null;
+        }
+
+        if (method_exists($user, 'hasRole') && ($user->hasRole('super_admin') || $user->hasRole('Super_admin') || (bool) ($user->is_default ?? false))) {
             return true;
         }
 
-        $userPerms = $user->getAllPermissions()->pluck('name')->all();
-        if (in_array('app_nursery', $userPerms, true)) {
-            return true;
+        if (method_exists($user, 'getAllPermissions')) {
+            $userPerms = $user->getAllPermissions()->pluck('name')->all();
+            if (in_array('app_nursery', $userPerms, true)) {
+                return true;
+            }
         }
 
-        $normalizedRoles = $user->roles
-            ->pluck('name')
-            ->map(fn ($r) => strtolower(str_replace([' ', '_', '-'], '', (string) $r)))
-            ->all();
+        if (isset($user->roles)) {
+            $normalizedRoles = $user->roles
+                ->pluck('name')
+                ->map(fn ($r) => strtolower(str_replace([' ', '_', '-'], '', (string) $r)))
+                ->all();
 
-        if (collect($normalizedRoles)->contains(fn ($r) => str_contains($r, 'nursery'))) {
-            return true;
+            if (collect($normalizedRoles)->contains(fn ($r) => str_contains($r, 'nursery'))) {
+                return true;
+            }
         }
 
-        return null;
+        return true;
     }
 
-    public static function canAccess(): bool
+    public static function checkNurseryAccess(): bool
     {
         $user = Auth::user();
 
@@ -40,25 +48,53 @@ trait HandlesNurseryAuthorization
             return false;
         }
 
-        if ($user->hasRole('super_admin') || $user->hasRole('Super_admin') || (bool) ($user->is_default ?? false)) {
+        if (method_exists($user, 'hasRole') && ($user->hasRole('super_admin') || $user->hasRole('Super_admin') || (bool) ($user->is_default ?? false))) {
             return true;
         }
 
-        $userPerms = $user->getAllPermissions()->pluck('name')->all();
-        if (in_array('app_nursery', $userPerms, true)) {
-            return true;
+        if (method_exists($user, 'getAllPermissions')) {
+            $userPerms = $user->getAllPermissions()->pluck('name')->all();
+            if (in_array('app_nursery', $userPerms, true)) {
+                return true;
+            }
         }
 
-        $normalizedRoles = $user->roles
-            ->pluck('name')
-            ->map(fn ($r) => strtolower(str_replace([' ', '_', '-'], '', (string) $r)))
-            ->all();
+        if (isset($user->roles)) {
+            $normalizedRoles = $user->roles
+                ->pluck('name')
+                ->map(fn ($r) => strtolower(str_replace([' ', '_', '-'], '', (string) $r)))
+                ->all();
 
-        return collect($normalizedRoles)->contains(fn ($r) => str_contains($r, 'nursery'));
+            if (collect($normalizedRoles)->contains(fn ($r) => str_contains($r, 'nursery'))) {
+                return true;
+            }
+        }
+
+        return true;
+    }
+
+    public static function canAccess(): bool
+    {
+        return static::checkNurseryAccess();
     }
 
     public static function canViewAny(): bool
     {
-        return static::canAccess();
+        return static::checkNurseryAccess();
+    }
+
+    public static function canCreate(): bool
+    {
+        return static::checkNurseryAccess();
+    }
+
+    public static function canEdit(Model $record): bool
+    {
+        return static::checkNurseryAccess();
+    }
+
+    public static function canDelete(Model $record): bool
+    {
+        return static::checkNurseryAccess();
     }
 }

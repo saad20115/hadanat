@@ -10,10 +10,13 @@ use Webkul\NurserySubscription\Filament\Admin\Widgets\ChildrenSubscriptionSummar
 use Webkul\NurserySubscription\Filament\Admin\Widgets\ExpiringSubscriptionsTable;
 use Webkul\NurserySubscription\Filament\Admin\Widgets\NurseryKpisWidget;
 use Webkul\NurserySubscription\Filament\Admin\Widgets\OutstandingBalancesTable;
+use Webkul\NurserySubscription\Traits\HandlesNurseryAuthorization;
 use Webkul\Support\Enums\NavigationGroup;
 
 class NurseryReports extends Page
 {
+    use HandlesNurseryAuthorization;
+
     protected static ?string $slug = 'nursery/reports';
 
     protected static string|\BackedEnum|null $navigationIcon = 'heroicon-o-presentation-chart-line';
@@ -21,21 +24,6 @@ class NurseryReports extends Page
     protected static ?int $navigationSort = 5;
 
     protected string $view = 'nursery-subscription::filament.admin.pages.nursery-reports';
-
-    public static function canAccess(): bool
-    {
-        $user = Auth::user();
-
-        if (! $user) {
-            return false;
-        }
-
-        return $user->hasRole('super_admin')
-            || $user->hasRole('Super_admin')
-            || $user->is_default
-            || $user->can('app_nursery')
-            || $user->can('page_nursery_subscription_nursery_reports');
-    }
 
     public static function getNavigationLabel(): string
     {

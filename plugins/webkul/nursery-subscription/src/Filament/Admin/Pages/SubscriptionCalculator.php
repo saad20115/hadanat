@@ -22,11 +22,12 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\HtmlString;
 use Webkul\NurserySubscription\Enums\DurationType;
 use Webkul\NurserySubscription\Models\PricingPlan;
+use Webkul\NurserySubscription\Traits\HandlesNurseryAuthorization;
 use Webkul\Support\Enums\NavigationGroup;
 
 class SubscriptionCalculator extends Page implements HasForms
 {
-    use InteractsWithForms;
+    use HandlesNurseryAuthorization, InteractsWithForms;
 
     protected static ?string $slug = 'nursery/calculator';
 
@@ -35,22 +36,6 @@ class SubscriptionCalculator extends Page implements HasForms
     protected static ?int $navigationSort = 3;
 
     protected string $view = 'nursery-subscription::filament.admin.pages.subscription-calculator';
-
-    public static function canAccess(): bool
-    {
-        $user = Auth::user();
-
-        if (! $user) {
-            return false;
-        }
-
-        return $user->hasRole('super_admin')
-            || $user->hasRole('Super_admin')
-            || $user->is_default
-            || $user->can('app_nursery')
-            || $user->can('page_nursery_subscription_subscription_calculator')
-            || $user->can('view_any_nursery_subscription_subscription');
-    }
 
     public ?array $data = [];
 
