@@ -15,7 +15,7 @@ class SetLocale
      *
      * @param  Closure(Request): (Response)  $next
      */
-    public function handle(Request $request, Closure $next): Response
+    public function handle(Request $request, Closure $next): mixed
     {
         $supported = array_keys(config('app.supported_locales', []));
 
