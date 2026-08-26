@@ -75,11 +75,14 @@ return Application::configure(basePath: dirname(__DIR__))
                 $currentPath = '/' . ltrim($request->path(), '/');
 
                 if ($landingPath && $currentPath !== $landingPath && ! $request->is(trim($landingPath, '/'))) {
-                    Notification::make()
-                        ->title(__('عذراً، ليس لديك صلاحية للوصول إلى هذه الصفحة'))
-                        ->body(__('تم توجيهك تلقائياً إلى صفحتك الرئيسية وفقاً لصلاحيات دورك.'))
-                        ->warning()
-                        ->send();
+                    // Only show notification if user attempted to access an actual forbidden page, not the generic root /admin
+                    if (trim($currentPath, '/') !== 'admin') {
+                        Notification::make()
+                            ->title(__('عذراً، ليس لديك صلاحية للوصول إلى هذه الصفحة'))
+                            ->body(__('تم توجيهك تلقائياً إلى صفحتك الرئيسية وفقاً لصلاحيات دورك.'))
+                            ->warning()
+                            ->send();
+                    }
 
                     return new \Illuminate\Http\RedirectResponse($landing);
                 }

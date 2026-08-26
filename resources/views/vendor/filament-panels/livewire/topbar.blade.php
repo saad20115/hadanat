@@ -80,13 +80,19 @@
                                 ];
 
                                 $appPerm = $groupIcon ? ($iconPermissionMap[$groupIcon] ?? null) : null;
+                                $userRoles = $user ? $user->roles->pluck('name')->map(fn ($r) => strtolower(str_replace([' ', '_', '-'], '', (string) $r)))->all() : [];
+                                $isNurseryUser = in_array('superadmin', $userRoles, true) || collect($userRoles)->contains(fn ($r) => str_contains($r, 'nursery'));
+
+                                $canViewApp = $isSuperAdmin
+                                    || ($groupIcon === 'icon-nursery' && $isNurseryUser)
+                                    || ($appPerm && $user && ($user->can($appPerm) || ($appPerm === 'app_nursery' && $isNurseryUser)));
                             @endphp
 
                             @if (! $groupLabel || ! $itemUrl || ! $groupIcon)
                                 @continue
                             @endif
 
-                            @if ($appPerm && ! $isSuperAdmin && ! $user->can($appPerm))
+                            @if ($appPerm && ! $canViewApp)
                                 @continue
                             @endif
 
