@@ -45,6 +45,22 @@ class Profile extends Page implements HasForms
 
     public function mount(): void
     {
+        $user = $this->getUser();
+
+        if (! $user->partner_id || ! $user->partner) {
+            $partner = \Webkul\Partner\Models\Partner::create([
+                'name'         => $user->name,
+                'email'        => $user->email,
+                'account_type' => 'individual',
+                'company_id'   => $user->default_company_id ?? 1,
+                'creator_id'   => $user->id,
+            ]);
+
+            $user->partner_id = $partner->id;
+            $user->save();
+            $user->refresh();
+        }
+
         $this->fillForms();
     }
 
@@ -200,8 +216,10 @@ class Profile extends Page implements HasForms
             $previousLanguage = $user->language ?? app()->getLocale();
 
             if (array_key_exists('avatar', $data)) {
+                $newAvatar = is_array($data['avatar']) ? reset($data['avatar']) : $data['avatar'];
                 $oldAvatar = $user->partner?->avatar;
-                if ($oldAvatar && $data['avatar'] !== $oldAvatar) {
+
+                if ($oldAvatar && $newAvatar !== $oldAvatar) {
                     Storage::disk('public')->delete($oldAvatar);
                 }
 
@@ -209,7 +227,7 @@ class Profile extends Page implements HasForms
                     $partner = \Webkul\Partner\Models\Partner::create([
                         'name'         => $user->name,
                         'email'        => $user->email,
-                        'avatar'       => $data['avatar'] ?? null,
+                        'avatar'       => $newAvatar,
                         'account_type' => 'individual',
                         'company_id'   => $user->default_company_id ?? 1,
                         'creator_id'   => $user->id,
@@ -218,7 +236,7 @@ class Profile extends Page implements HasForms
                     $user->save();
                     $user->refresh();
                 } else {
-                    $user->partner->avatar = $data['avatar'];
+                    $user->partner->avatar = $newAvatar;
                     $user->partner->save();
                 }
 
@@ -266,9 +284,7 @@ class Profile extends Page implements HasForms
                 ->duration(3000)
                 ->send();
 
-            if ($languageChanged) {
-                return redirect(static::getUrl());
-            }
+            return redirect(static::getUrl());
         } catch (ValidationException $e) {
             throw $e;
         } catch (Exception $e) {

@@ -44,7 +44,7 @@ class EditEmployee extends EditRecord
 
     public function mount(int | string $record): void
     {
-        parent::mount($record);
+        $this->record = $this->resolveRecord($record);
 
         if (! $this->record->partner_id || ! $this->record->partner) {
             $partner = \Webkul\Partner\Models\Partner::create([
@@ -60,6 +60,8 @@ class EditEmployee extends EditRecord
             $this->record->saveQuietly();
             $this->record->refresh();
         }
+
+        parent::mount($record);
     }
 
     protected function beforeSave(): void
