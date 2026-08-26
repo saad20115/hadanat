@@ -20,11 +20,47 @@ class AppServiceProvider extends ServiceProvider
         $this->app->bind(Authenticatable::class, User::class);
     }
 
-    public function boot(): void
-    {
         Gate::before(function ($user, $ability) {
-            if ($user && ($user->hasRole('super_admin') || $user->hasRole('Super_admin') || $user->is_default)) {
+            if (! $user) {
+                return null;
+            }
+
+            if ($user->hasRole('super_admin') || $user->hasRole('Super_admin') || (bool) ($user->is_default ?? false)) {
                 return true;
+            }
+
+            // Nursery specific roles bypass
+            if (str_contains($ability, 'nursery')) {
+                if ($user->hasRole(['nursery_manager', 'nursery_supervisor', 'nursery_registrar', 'nursery_accountant'])) {
+                    return true;
+                }
+            }
+
+            // Module-level permission bypass
+            $moduleMap = [
+                'nursery'     => 'app_nursery',
+                'sales'       => 'app_sales',
+                'sale'        => 'app_sales',
+                'purchase'    => 'app_purchases',
+                'invoice'     => 'app_invoices',
+                'account'     => 'app_accounts',
+                'employee'    => 'app_employees',
+                'recruitment' => 'app_recruitments',
+                'time_off'    => 'app_time_off',
+                'project'     => 'app_projects',
+                'maintenance' => 'app_maintenance',
+                'website'     => 'app_website',
+                'contact'     => 'app_contacts',
+                'plugin'      => 'app_plugins',
+                'security'    => 'app_security',
+            ];
+
+            foreach ($moduleMap as $keyword => $perm) {
+                if (str_contains($ability, $keyword) && $ability !== $perm) {
+                    if ($user->can($perm)) {
+                        return true;
+                    }
+                }
             }
 
             return null;
