@@ -27,18 +27,34 @@ class NurseryDemoDataSeeder extends Seeder
         }
 
         // 2. Academic Year
-        AcademicYear::firstOrCreate(
-            ['code' => '2025-2026', 'company_id' => $companyId],
+        $academicYear = AcademicYear::firstOrCreate(
+            ['name' => 'العام الدراسي 1447هـ (2025-2026م)', 'company_id' => $companyId],
             [
-                'name'                 => 'العام الدراسي 1447هـ (2025-2026م)',
-                'is_current'           => true,
-                'term1_start_date'     => '2025-08-30',
-                'term1_end_date'       => '2026-01-07',
-                'term2_start_date'     => '2026-01-17',
-                'term2_end_date'       => '2026-07-01',
-                'full_year_start_date' => '2025-08-30',
-                'full_year_end_date'   => '2026-07-01',
-                'creator_id'           => $creatorId,
+                'start_date' => '2025-08-30',
+                'end_date'   => '2026-07-01',
+                'is_current' => true,
+                'notes'      => 'العام الدراسي المعتمد لروضة وبراعم الأطفال',
+                'company_id' => $companyId,
+            ]
+        );
+
+        \Webkul\NurserySubscription\Models\AcademicTerm::firstOrCreate(
+            ['name' => 'الفصل الدراسي الأول', 'academic_year_id' => $academicYear->id],
+            [
+                'start_date' => '2025-08-30',
+                'end_date'   => '2026-01-07',
+                'is_current' => false,
+                'company_id' => $companyId,
+            ]
+        );
+
+        \Webkul\NurserySubscription\Models\AcademicTerm::firstOrCreate(
+            ['name' => 'الفصل الدراسي الثاني', 'academic_year_id' => $academicYear->id],
+            [
+                'start_date' => '2026-01-17',
+                'end_date'   => '2026-07-01',
+                'is_current' => true,
+                'company_id' => $companyId,
             ]
         );
 
