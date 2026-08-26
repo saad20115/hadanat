@@ -81,7 +81,7 @@ return Application::configure(basePath: dirname(__DIR__))
                         ->warning()
                         ->send();
 
-                    return redirect($landing);
+                    return new \Illuminate\Http\RedirectResponse($landing);
                 }
             }
 

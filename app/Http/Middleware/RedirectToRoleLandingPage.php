@@ -22,7 +22,7 @@ class RedirectToRoleLandingPage
                 $targetPath = trim(parse_url($targetUrl, PHP_URL_PATH) ?? '', '/');
 
                 if ($targetPath !== '' && $targetPath !== 'admin') {
-                    return redirect()->to($targetUrl);
+                    return new \Illuminate\Http\RedirectResponse($targetUrl);
                 }
             }
         }
