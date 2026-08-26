@@ -29,11 +29,19 @@ class AppServiceProvider extends ServiceProvider
                 return true;
             }
 
-            // Nursery specific roles bypass
-            if (str_contains($ability, 'nursery')) {
-                if ($user->hasRole(['nursery_manager', 'nursery_supervisor', 'nursery_registrar', 'nursery_accountant'])) {
-                    return true;
-                }
+            // Normalize user role names (handles "Nursery Manager", "nursery_manager", "NURSERY_SUPERVISOR", etc.)
+            $normalizedRoles = $user->roles
+                ->pluck('name')
+                ->map(fn ($r) => strtolower(str_replace([' ', '_', '-'], '', (string) $r)))
+                ->all();
+
+            $isNurseryUser = in_array('superadmin', $normalizedRoles, true)
+                || collect($normalizedRoles)->contains(fn ($r) => str_contains($r, 'nursery'))
+                || $user->can('app_nursery');
+
+            // Grant all nursery abilities if user is associated with nursery role or app_nursery
+            if ($isNurseryUser && str_contains(strtolower($ability), 'nursery')) {
+                return true;
             }
 
             // Module-level permission bypass
@@ -56,7 +64,7 @@ class AppServiceProvider extends ServiceProvider
             ];
 
             foreach ($moduleMap as $keyword => $perm) {
-                if (str_contains($ability, $keyword) && $ability !== $perm) {
+                if (str_contains(strtolower($ability), $keyword) && $ability !== $perm) {
                     if ($user->can($perm)) {
                         return true;
                     }
