@@ -297,16 +297,19 @@ class Role extends BaseRole
         $configuredRole = null;
 
         if ($roles instanceof Collection) {
-            $configuredRole = $roles->first(fn ($r) => ! empty($r->default_landing_page) && ! in_array($r->default_landing_page, ['admin', 'dashboard']));
+            $configuredRole = $roles->first(fn ($r) => ! empty($r->default_landing_page));
         } elseif (method_exists($user, 'roles')) {
             $configuredRole = $user->roles()
                 ->whereNotNull('default_landing_page')
-                ->whereNotIn('default_landing_page', ['', 'admin', 'dashboard'])
+                ->where('default_landing_page', '!=', '')
                 ->first();
         }
 
         if ($configuredRole && ! empty($configuredRole->default_landing_page)) {
             $path = ltrim($configuredRole->default_landing_page, '/');
+            if ($path === 'dashboard' || $path === 'admin') {
+                return $isSuperAdmin ? '/admin/nursery/reports' : '/admin/nursery/subscriptions';
+            }
 
             return '/admin/'.$path;
         }
@@ -316,16 +319,21 @@ class Role extends BaseRole
             return '/admin/nursery/reports';
         }
 
-        // 3. Fallback based on specific role names
-        if ($user->hasRole('nursery_manager') || $user->hasRole('manager')) {
+        // 3. Fallback based on normalized role names
+        $normalizedRoles = $roles instanceof Collection
+            ? $roles->pluck('name')->map(fn ($r) => strtolower(str_replace([' ', '_', '-'], '', (string) $r)))
+            : collect();
+
+        if ($normalizedRoles->contains('nurserymanager') || $normalizedRoles->contains('manager')) {
             return '/admin/nursery/subscriptions';
         }
 
-        if ($user->hasRole('nursery_accountant') || $user->hasRole('accountant')) {
+        if ($normalizedRoles->contains('nurseryaccountant') || $normalizedRoles->contains('accountant')) {
             return '/admin/nursery/payments';
         }
 
-        if ($user->hasRole('nursery_registrar') || $user->hasRole('registrar') || $user->hasRole('nursery_supervisor') || $user->hasRole('supervisor')) {
+        if ($normalizedRoles->contains('nurseryregistrar') || $normalizedRoles->contains('registrar')
+            || $normalizedRoles->contains('nurserysupervisor') || $normalizedRoles->contains('supervisor')) {
             return '/admin/nursery/children';
         }
 
