@@ -31,7 +31,9 @@ class AppServiceProvider extends ServiceProvider
                 return true;
             }
 
-            // Normalize user role names (handles "Nursery Manager", "nursery_manager", "NURSERY_SUPERVISOR", etc.)
+            // Get user's permissions and normalized roles safely without calling Gate::before
+            $userPerms = $user->getAllPermissions()->pluck('name')->all();
+
             $normalizedRoles = $user->roles
                 ->pluck('name')
                 ->map(fn ($r) => strtolower(str_replace([' ', '_', '-'], '', (string) $r)))
@@ -39,7 +41,7 @@ class AppServiceProvider extends ServiceProvider
 
             $isNurseryUser = in_array('superadmin', $normalizedRoles, true)
                 || collect($normalizedRoles)->contains(fn ($r) => str_contains($r, 'nursery'))
-                || $user->can('app_nursery');
+                || in_array('app_nursery', $userPerms, true);
 
             // Grant all nursery abilities if user is associated with nursery role or app_nursery
             if ($isNurseryUser && str_contains(strtolower($ability), 'nursery')) {
@@ -66,8 +68,8 @@ class AppServiceProvider extends ServiceProvider
             ];
 
             foreach ($moduleMap as $keyword => $perm) {
-                if (str_contains(strtolower($ability), $keyword) && $ability !== $perm) {
-                    if ($user->can($perm)) {
+                if (str_contains(strtolower($ability), $keyword)) {
+                    if (in_array($perm, $userPerms, true)) {
                         return true;
                     }
                 }
