@@ -18,8 +18,8 @@ class NurseryDemoDataSeeder extends Seeder
 {
     public function run(): void
     {
-        $companyId = 1;
-        $creatorId = 1;
+        $companyId = \Illuminate\Support\Facades\DB::table('companies')->value('id') ?? 1;
+        $creatorId = \Illuminate\Support\Facades\DB::table('users')->value('id');
 
         // 1. Seed Pricing Plans if none exist
         if (PricingPlan::where('company_id', $companyId)->count() === 0) {
