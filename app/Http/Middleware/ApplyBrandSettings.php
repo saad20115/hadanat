@@ -46,7 +46,7 @@ class ApplyBrandSettings
         950 => 0.07136,
     ];
 
-    public function handle(Request $request, Closure $next): Response
+    public function handle(Request $request, Closure $next): mixed
     {
         $panel = Filament::getCurrentPanel();
 
