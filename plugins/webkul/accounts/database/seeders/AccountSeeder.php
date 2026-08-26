@@ -23,9 +23,32 @@ class AccountSeeder extends Seeder
 
         $user = User::first();
 
-        $currency = Currency::active()->first() ?? Currency::first();
+        $currency = Currency::where('code', 'SAR')
+            ->orWhere('name', 'SAR')
+            ->orWhere('symbol', 'ر.س')
+            ->orWhere('symbol', 'SAR')
+            ->first();
+
+        if (! $currency) {
+            $currency = Currency::create([
+                'name'             => 'SAR',
+                'code'             => 'SAR',
+                'symbol'           => 'ر.س',
+                'currency_unit'    => 'ريال',
+                'currency_subunit' => 'هللة',
+                'decimal_places'   => 2,
+                'active'           => true,
+            ]);
+        } else {
+            $currency->active = true;
+            $currency->save();
+        }
 
         $company = Company::first();
+        if ($company && (! $company->currency_id || $company->currency_id !== $currency->id)) {
+            $company->currency_id = $currency->id;
+            $company->save();
+        }
 
         $now = now();
 
