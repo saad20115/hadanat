@@ -61,50 +61,45 @@ class NurseryDemoDataSeeder extends Seeder
         // 3. Age Stage Rules
         $rules = [
             [
-                'stage'          => 'infant',
+                'code'           => 'infant',
                 'name'           => 'فئة الرضع والحضانة المبكرة',
                 'min_age_months' => 6,
                 'max_age_months' => 18,
-                'max_capacity'   => 15,
                 'sort_order'     => 1,
             ],
             [
-                'stage'          => 'toddler',
+                'code'           => 'toddler',
                 'name'           => 'فئة الحضانة وبراعم الصغار',
                 'min_age_months' => 18,
                 'max_age_months' => 36,
-                'max_capacity'   => 25,
                 'sort_order'     => 2,
             ],
             [
-                'stage'          => 'kg1',
+                'code'           => 'kg1',
                 'name'           => 'مرحلة الروضة الأولى (KG1)',
                 'min_age_months' => 36,
                 'max_age_months' => 48,
-                'max_capacity'   => 30,
                 'sort_order'     => 3,
             ],
             [
-                'stage'          => 'kg2',
+                'code'           => 'kg2',
                 'name'           => 'مرحلة الروضة الثانية (KG2)',
                 'min_age_months' => 48,
                 'max_age_months' => 60,
-                'max_capacity'   => 30,
                 'sort_order'     => 4,
             ],
             [
-                'stage'          => 'kg3',
+                'code'           => 'kg3',
                 'name'           => 'مرحلة التمهيدي (KG3)',
                 'min_age_months' => 60,
                 'max_age_months' => 72,
-                'max_capacity'   => 30,
                 'sort_order'     => 5,
             ],
         ];
 
         foreach ($rules as $r) {
             AgeStageRule::firstOrCreate(
-                ['stage' => $r['stage'], 'company_id' => $companyId],
+                ['code' => $r['code'], 'company_id' => $companyId],
                 array_merge($r, [
                     'company_id' => $companyId,
                     'is_active'  => true,
