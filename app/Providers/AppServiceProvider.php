@@ -20,6 +20,8 @@ class AppServiceProvider extends ServiceProvider
         $this->app->bind(Authenticatable::class, User::class);
     }
 
+    public function boot(): void
+    {
         Gate::before(function ($user, $ability) {
             if (! $user) {
                 return null;
