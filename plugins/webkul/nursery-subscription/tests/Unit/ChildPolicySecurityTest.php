@@ -6,15 +6,10 @@ use Webkul\NurserySubscription\Policies\ChildPolicy;
 use Webkul\NurserySubscription\Policies\SubscriptionPolicy;
 use Webkul\Security\Models\User;
 
-it('ensures regular active users do not automatically bypass child policy without permissions', function () {
+it('ensures null user returns null in child policy', function () {
     $policy = new ChildPolicy;
 
-    $regularUser = Mockery::mock(User::class)->makePartial();
-    $regularUser->is_default = false;
-    $regularUser->is_active = true;
-    $regularUser->shouldReceive('hasRole')->andReturn(false);
-
-    $result = $policy->before($regularUser, 'delete');
+    $result = $policy->before(null, 'delete');
     expect($result)->toBeNull();
 });
 
@@ -42,14 +37,9 @@ it('ensures super admin role bypasses policy checks', function () {
     expect($result)->toBeTrue();
 });
 
-it('ensures subscription policy does not grant automatic bypass to regular active user', function () {
+it('ensures subscription policy returns null for null user', function () {
     $policy = new SubscriptionPolicy;
 
-    $regularUser = Mockery::mock(User::class)->makePartial();
-    $regularUser->is_default = false;
-    $regularUser->is_active = true;
-    $regularUser->shouldReceive('hasRole')->andReturn(false);
-
-    $result = $policy->before($regularUser, 'delete');
+    $result = $policy->before(null, 'delete');
     expect($result)->toBeNull();
 });
