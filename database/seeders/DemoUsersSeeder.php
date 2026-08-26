@@ -42,15 +42,16 @@ class DemoUsersSeeder extends Seeder
         }
 
         $roles = [
-            'super_admin'        => 'مدير عام النظام',
-            'nursery_manager'    => 'مدير الحضانة',
-            'nursery_accountant' => 'محاسب الحضانة',
-            'nursery_registrar'  => 'مسؤول التسجيل والاستقبال',
-            'nursery_supervisor' => 'مشرفة الحضانة',
+            'super_admin'        => ['label' => 'مدير عام النظام', 'landing' => 'dashboard'],
+            'nursery_manager'    => ['label' => 'مدير الحضانة', 'landing' => 'nursery/subscriptions'],
+            'nursery_accountant' => ['label' => 'محاسب الحضانة', 'landing' => 'nursery/payments'],
+            'nursery_registrar'  => ['label' => 'مسؤول التسجيل والاستقبال', 'landing' => 'nursery/children'],
+            'nursery_supervisor' => ['label' => 'مشرفة الحضانة', 'landing' => 'nursery/children'],
         ];
 
-        foreach ($roles as $roleName => $label) {
-            Role::firstOrCreate(['name' => $roleName, 'guard_name' => 'web']);
+        foreach ($roles as $roleName => $roleData) {
+            $role = Role::firstOrCreate(['name' => $roleName, 'guard_name' => 'web']);
+            $role->update(['default_landing_page' => $roleData['landing']]);
         }
 
         $users = [
