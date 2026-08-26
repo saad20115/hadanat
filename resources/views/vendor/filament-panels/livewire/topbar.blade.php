@@ -54,7 +54,8 @@
                             @php
                                 $groupLabel = $group->getLabel();
                                 $groupIcon = $group->getIcon();
-                                $itemUrl = $group->getItems()->first()?->getUrl();
+                                $firstItemWithUrl = $group->getItems()->first(fn ($item) => ! empty($item->getUrl()));
+                                $itemUrl = $firstItemWithUrl?->getUrl() ?? ($groupIcon === 'icon-nursery' ? url('/admin/nursery/subscriptions') : null);
                                 $user = auth()->user();
                                 $isSuperAdmin = $user && ($user->hasRole('super_admin') || $user->hasRole('Super_admin') || $user->is_default);
 

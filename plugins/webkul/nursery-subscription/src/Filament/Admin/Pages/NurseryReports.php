@@ -32,6 +32,8 @@ class NurseryReports extends Page
 
         return $user->hasRole('super_admin')
             || $user->hasRole('Super_admin')
+            || $user->is_default
+            || $user->can('app_nursery')
             || $user->can('page_nursery_subscription_nursery_reports');
     }
 

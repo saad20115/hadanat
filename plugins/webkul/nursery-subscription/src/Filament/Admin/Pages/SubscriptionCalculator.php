@@ -46,6 +46,8 @@ class SubscriptionCalculator extends Page implements HasForms
 
         return $user->hasRole('super_admin')
             || $user->hasRole('Super_admin')
+            || $user->is_default
+            || $user->can('app_nursery')
             || $user->can('page_nursery_subscription_subscription_calculator')
             || $user->can('view_any_nursery_subscription_subscription');
     }
