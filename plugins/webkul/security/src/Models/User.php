@@ -55,6 +55,7 @@ class User extends BaseUser implements FilamentUser, HasAppAuthentication, HasAp
             'resource_permission' => PermissionType::class,
             'is_default'          => 'boolean',
             'is_active'           => 'boolean',
+            'password'            => 'hashed',
         ]);
 
         parent::__construct($attributes);

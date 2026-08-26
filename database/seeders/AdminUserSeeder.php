@@ -4,6 +4,7 @@ namespace Database\Seeders;
 
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Hash;
 use Spatie\Permission\Models\Role;
 use Webkul\Security\Models\User;
 
@@ -51,7 +52,7 @@ class AdminUserSeeder extends Seeder
             ['email' => 'admin@hadanat.com'],
             [
                 'name'               => 'المدير العام (Super Admin)',
-                'password'           => 'password123',
+                'password'           => Hash::make('password123'),
                 'default_company_id' => 1,
                 'is_active'          => true,
                 'is_default'         => true,
