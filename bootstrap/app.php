@@ -62,19 +62,43 @@ return Application::configure(basePath: dirname(__DIR__))
             }
         });
 
-        $exceptions->render(function (AuthorizationException $e, $request) {
+        $handleForbidden = function ($e, $request) {
             if ($request->is('api/*') || $request->expectsJson()) {
                 return response()->json([
                     'message' => 'This action is unauthorized.',
                 ], 403);
             }
+
+            if (auth()->check()) {
+                $landing = \Webkul\Security\Models\Role::getLandingPageForUser(auth()->user());
+                $landingPath = parse_url($landing, PHP_URL_PATH) ?? $landing;
+                $currentPath = '/' . ltrim($request->path(), '/');
+
+                if ($landingPath && $currentPath !== $landingPath && ! $request->is(trim($landingPath, '/'))) {
+                    Notification::make()
+                        ->title(__('عذراً، ليس لديك صلاحية للوصول إلى هذه الصفحة'))
+                        ->body(__('تم توجيهك تلقائياً إلى صفحتك الرئيسية وفقاً لصلاحيات دورك.'))
+                        ->warning()
+                        ->send();
+
+                    return redirect($landing);
+                }
+            }
+
+            return null;
+        };
+
+        $exceptions->render(function (AuthorizationException $e, $request) use ($handleForbidden) {
+            return $handleForbidden($e, $request);
         });
 
-        $exceptions->render(function (AccessDeniedHttpException $e, $request) {
-            if ($request->is('api/*') || $request->expectsJson()) {
-                return response()->json([
-                    'message' => 'This action is unauthorized.',
-                ], 403);
+        $exceptions->render(function (AccessDeniedHttpException $e, $request) use ($handleForbidden) {
+            return $handleForbidden($e, $request);
+        });
+
+        $exceptions->render(function (\Symfony\Component\HttpKernel\Exception\HttpException $e, $request) use ($handleForbidden) {
+            if ($e->getStatusCode() === 403) {
+                return $handleForbidden($e, $request);
             }
         });
 
