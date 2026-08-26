@@ -159,40 +159,41 @@ class User extends BaseUser implements FilamentUser, HasAppAuthentication, HasAp
         });
     }
 
-    private function handlePartnerCreation(self $user)
+    private function handlePartnerCreation(self $user): void
     {
-        $partner = $user->partner()->create([
-            'creator_id' => Auth::user()->id ?? $user->id,
-            'company_id' => $user->default_company_id,
-            'user_id'    => $user->id,
-            'sub_type'   => 'partner',
-            'name'       => $user->name,
-            'email'      => $user->email,
-            'avatar'     => $user->avatar ?? null,
+        $partner = Partner::withoutGlobalScopes()->create([
+            'creator_id'   => Auth::id() ?? $user->id,
+            'company_id'   => $user->default_company_id ?? 1,
+            'user_id'      => $user->id,
+            'account_type' => 'individual',
+            'sub_type'     => 'partner',
+            'name'         => $user->name,
+            'email'        => $user->email,
+            'avatar'       => $user->attributes['avatar'] ?? null,
         ]);
 
         $user->partner_id = $partner->id;
-        $user->save();
+        $user->saveQuietly();
     }
 
-    private function handlePartnerUpdation(self $user)
+    private function handlePartnerUpdation(self $user): void
     {
-        $partner = Partner::withoutGlobalScopes()->updateOrCreate(
-            ['id' => $user->partner_id],
-            [
-                'creator_id' => Auth::user()->id ?? $user->id,
-                'company_id' => $user->default_company_id,
-                'user_id'    => $user->id,
-                'sub_type'   => 'partner',
-                'name'       => $user->name,
-                'email'      => $user->email,
-                'avatar'     => $user->avatar ?? null,
-            ]
-        );
-
-        if ($user->partner_id !== $partner->id) {
-            $user->partner_id = $partner->id;
-            $user->save();
+        if (! $user->partner_id) {
+            $this->handlePartnerCreation($user);
+            return;
         }
+
+        $updateData = [
+            'name'       => $user->name,
+            'email'      => $user->email,
+            'company_id' => $user->default_company_id ?? 1,
+            'user_id'    => $user->id,
+        ];
+
+        if (array_key_exists('avatar', $user->attributes) && ! empty($user->attributes['avatar'])) {
+            $updateData['avatar'] = $user->attributes['avatar'];
+        }
+
+        Partner::withoutGlobalScopes()->where('id', $user->partner_id)->update($updateData);
     }
 }
