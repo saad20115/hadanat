@@ -200,15 +200,26 @@ class Profile extends Page implements HasForms
             $previousLanguage = $user->language ?? app()->getLocale();
 
             if (array_key_exists('avatar', $data)) {
-                if (
-                    $user->avatar
-                    && $data['avatar'] !== $user->avatar
-                ) {
-                    Storage::disk('public')->delete($user->avatar);
+                $oldAvatar = $user->partner?->avatar;
+                if ($oldAvatar && $data['avatar'] !== $oldAvatar) {
+                    Storage::disk('public')->delete($oldAvatar);
                 }
 
-                $user->partner->avatar = $data['avatar'];
-                $user->partner->save();
+                if (! $user->partner) {
+                    $partner = \Webkul\Partner\Models\Partner::create([
+                        'name'         => $user->name,
+                        'email'        => $user->email,
+                        'avatar'       => $data['avatar'] ?? null,
+                        'account_type' => 'individual',
+                        'company_id'   => $user->default_company_id ?? 1,
+                        'creator_id'   => $user->id,
+                    ]);
+                    $user->partner_id = $partner->id;
+                    $user->save();
+                } else {
+                    $user->partner->avatar = $data['avatar'];
+                    $user->partner->save();
+                }
             }
 
             $fill = [
@@ -339,7 +350,7 @@ class Profile extends Page implements HasForms
 
         $userData = $user->only(['name', 'email', 'avatar', 'language']);
 
-        $userData['avatar'] = $user->partner->avatar;
+        $userData['avatar'] = $user->partner?->avatar ?? $user->avatar;
 
         if (empty($userData['language'])) {
             $userData['language'] = app()->getLocale();

@@ -10,6 +10,7 @@ use Filament\Auth\MultiFactor\App\Contracts\HasAppAuthenticationRecovery;
 use Filament\Auth\MultiFactor\Email\Concerns\InteractsWithEmailAuthentication;
 use Filament\Auth\MultiFactor\Email\Contracts\HasEmailAuthentication;
 use Filament\Models\Contracts\FilamentUser;
+use Filament\Models\Contracts\HasAvatar;
 use Filament\Panel;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
@@ -18,6 +19,7 @@ use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Storage;
 use Spatie\Permission\Traits\HasRoles;
 use Webkul\Employee\Models\Department;
 use Webkul\Employee\Models\Employee;
@@ -28,7 +30,7 @@ use Webkul\Security\Traits\HasOwnershipScope;
 use Webkul\Support\Models\Company;
 use Webkul\Support\Models\Scopes\CompanyScope;
 
-class User extends BaseUser implements FilamentUser, HasAppAuthentication, HasAppAuthenticationRecovery, HasEmailAuthentication
+class User extends BaseUser implements FilamentUser, HasAppAuthentication, HasAppAuthenticationRecovery, HasEmailAuthentication, HasAvatar
 {
     use HasOwnershipScope,
         HasRoles,
@@ -84,9 +86,24 @@ class User extends BaseUser implements FilamentUser, HasAppAuthentication, HasAp
         return $this->belongsTo(User::class, 'creator_id');
     }
 
-    public function getAvatarUrlAttribute()
+    public function getAvatarUrlAttribute(): ?string
     {
-        return $this->partner?->avatar_url;
+        $avatar = $this->partner?->avatar ?? $this->avatar;
+
+        if (! $avatar) {
+            return null;
+        }
+
+        if (str_starts_with($avatar, 'http://') || str_starts_with($avatar, 'https://')) {
+            return $avatar;
+        }
+
+        return Storage::disk('public')->url($avatar);
+    }
+
+    public function getFilamentAvatarUrl(): ?string
+    {
+        return $this->getAvatarUrlAttribute();
     }
 
     public function teams(): BelongsToMany

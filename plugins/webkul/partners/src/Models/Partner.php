@@ -83,13 +83,17 @@ class Partner extends Authenticatable implements FilamentUser
         return true;
     }
 
-    public function getAvatarUrlAttribute()
+    public function getAvatarUrlAttribute(): ?string
     {
         if (! $this->avatar) {
-            return;
+            return null;
         }
 
-        return Storage::url($this->avatar);
+        if (str_starts_with($this->avatar, 'http://') || str_starts_with($this->avatar, 'https://')) {
+            return $this->avatar;
+        }
+
+        return Storage::disk('public')->url($this->avatar);
     }
 
     public function country(): BelongsTo

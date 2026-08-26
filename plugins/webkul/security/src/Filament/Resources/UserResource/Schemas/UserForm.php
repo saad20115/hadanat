@@ -135,7 +135,9 @@ class UserForm
                                             ->hiddenLabel()
                                             ->automaticallyResizeImagesMode('cover')
                                             ->image()
+                                            ->avatar()
                                             ->imageEditor()
+                                            ->disk('public')
                                             ->directory('users/avatars')
                                             ->visibility('public'),
                                     ])

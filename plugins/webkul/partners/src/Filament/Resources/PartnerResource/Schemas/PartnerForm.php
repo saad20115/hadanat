@@ -115,6 +115,7 @@ class PartnerForm
                                     ->automaticallyResizeImagesMode('cover')
                                     ->imageEditor()
                                     ->avatar()
+                                    ->disk('public')
                                     ->directory('partners/avatar')
                                     ->visibility('public'),
                             ]),

@@ -70,6 +70,7 @@ class EmployeeForm
                                             ->automaticallyResizeImagesMode('cover')
                                             ->imageEditor()
                                             ->avatar()
+                                            ->disk('public')
                                             ->directory('employees/avatar')
                                             ->visibility('public'),
                                     ]),

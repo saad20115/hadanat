@@ -82,18 +82,20 @@ class EditUser extends EditRecord
         ];
     }
 
-    protected function mutateFormDataBeforeFill(array $data): array
+    protected function beforeSave(): void
     {
-        $partner = $this->record?->partner;
+        if (! $this->record->partner_id || ! $this->record->partner) {
+            $partner = \Webkul\Partner\Models\Partner::create([
+                'name'         => $this->record->name,
+                'email'        => $this->record->email,
+                'account_type' => 'individual',
+                'company_id'   => $this->record->default_company_id ?? 1,
+                'creator_id'   => Auth::id() ?? $this->record->id,
+            ]);
 
-        if (! $partner) {
-            return $data;
+            $this->record->partner_id = $partner->id;
+            $this->record->saveQuietly();
         }
-
-        return [
-            ...$data,
-            ...$partner->toArray(),
-        ];
     }
 
     protected function mutateFormDataBeforeSave(array $data): array
