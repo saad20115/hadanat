@@ -4,10 +4,12 @@ declare(strict_types=1);
 
 namespace Webkul\NurserySubscription\Enums;
 
+use Filament\Support\Contracts\HasLabel;
+
 /**
  * Enum for payment methods.
  */
-enum PaymentMethod: string
+enum PaymentMethod: string implements HasLabel
 {
     case CASH = 'cash';
     case CARD = 'card';
@@ -17,12 +19,12 @@ enum PaymentMethod: string
     /**
      * Get the Arabic label for the payment method.
      */
-    public function label(): string
+    public function getLabel(): string
     {
         return match ($this) {
-            self::CASH          => 'نقدي',
-            self::CARD          => 'بطاقة ائتمان',
-            self::BANK_TRANSFER => 'حوالة بنكية',
+            self::CASH          => '💵 نقدي',
+            self::CARD          => '💳 بطاقة / مدى',
+            self::BANK_TRANSFER => '🏦 حوالة بنكية',
             self::OTHER         => 'أخرى',
         };
     }

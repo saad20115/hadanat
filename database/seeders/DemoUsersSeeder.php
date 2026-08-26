@@ -80,21 +80,24 @@ class DemoUsersSeeder extends Seeder
         ];
 
         foreach ($roles as $roleName => $roleData) {
+            // Delete duplicate roles (Title Case aliases like "Nursery Manager")
+            $titleCase = ucwords(str_replace('_', ' ', $roleName));
+            $aliasRole = Role::whereRaw("LOWER(REPLACE(name, ' ', '_')) = ?", [strtolower($roleName)])
+                ->whereRaw("LOWER(name) != ?", [strtolower($roleName)])
+                ->first();
+
+            if ($aliasRole) {
+                DB::table('model_has_roles')
+                    ->where('role_id', $aliasRole->id)
+                    ->update(['role_id' => Role::firstOrCreate(['name' => $roleName, 'guard_name' => 'web'])->id]);
+                $aliasRole->delete();
+            }
+
             $role = Role::firstOrCreate(['name' => $roleName, 'guard_name' => 'web']);
             $role->update(['default_landing_page' => $roleData['landing']]);
 
             if (is_array($roleData['perms'])) {
                 $role->syncPermissionsByNames($roleData['perms']);
-            }
-
-            // Also sync alias with Title Case / spaces if exists in DB
-            $spaceAlias = ucwords(str_replace('_', ' ', $roleName));
-            $aliasRole = Role::where('name', $spaceAlias)->first();
-            if ($aliasRole) {
-                $aliasRole->update(['default_landing_page' => $roleData['landing']]);
-                if (is_array($roleData['perms'])) {
-                    $aliasRole->syncPermissionsByNames($roleData['perms']);
-                }
             }
         }
 

@@ -4,10 +4,13 @@ declare(strict_types=1);
 
 namespace Webkul\NurserySubscription\Enums;
 
+use Filament\Support\Contracts\HasColor;
+use Filament\Support\Contracts\HasLabel;
+
 /**
  * Enum for subscription duration types.
  */
-enum DurationType: string
+enum DurationType: string implements HasColor, HasLabel
 {
     case HOURLY = 'hourly';
     case DAILY = 'daily';
@@ -20,7 +23,7 @@ enum DurationType: string
     /**
      * Get the Arabic label for the duration type.
      */
-    public function label(): string
+    public function getLabel(): string
     {
         return match ($this) {
             self::HOURLY        => 'بالساعة',
@@ -30,6 +33,22 @@ enum DurationType: string
             self::TERM          => 'فصل دراسي',
             self::YEARLY        => 'سنوي',
             self::VISIT_PACKAGE => 'باقة زيارات',
+        };
+    }
+
+    /**
+     * Get the Filament badge color.
+     */
+    public function getColor(): string|array|null
+    {
+        return match ($this) {
+            self::HOURLY        => 'gray',
+            self::DAILY         => 'info',
+            self::WEEKLY        => 'primary',
+            self::MONTHLY       => 'success',
+            self::TERM          => 'warning',
+            self::YEARLY        => 'danger',
+            self::VISIT_PACKAGE => 'info',
         };
     }
 }

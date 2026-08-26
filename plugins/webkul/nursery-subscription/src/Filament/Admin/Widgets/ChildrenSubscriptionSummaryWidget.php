@@ -14,6 +14,8 @@ use Webkul\Support\Services\CompanyContext;
 
 class ChildrenSubscriptionSummaryWidget extends Widget
 {
+    protected static bool $isDiscovered = false;
+
     protected static ?int $sort = 2;
 
     protected int|string|array $columnSpan = 'full';

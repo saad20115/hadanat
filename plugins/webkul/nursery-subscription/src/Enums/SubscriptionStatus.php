@@ -4,10 +4,14 @@ declare(strict_types=1);
 
 namespace Webkul\NurserySubscription\Enums;
 
+use Filament\Support\Contracts\HasColor;
+use Filament\Support\Contracts\HasIcon;
+use Filament\Support\Contracts\HasLabel;
+
 /**
  * Enum for subscription statuses.
  */
-enum SubscriptionStatus: string
+enum SubscriptionStatus: string implements HasColor, HasIcon, HasLabel
 {
     case NEW = 'new';
     case ACTIVE = 'active';
@@ -20,7 +24,7 @@ enum SubscriptionStatus: string
     /**
      * Get the Arabic label for the subscription status.
      */
-    public function label(): string
+    public function getLabel(): string
     {
         return match ($this) {
             self::NEW           => 'جديد',
@@ -36,7 +40,7 @@ enum SubscriptionStatus: string
     /**
      * Get the Filament badge color.
      */
-    public function color(): string
+    public function getColor(): string|array|null
     {
         return match ($this) {
             self::NEW           => 'info',
@@ -52,7 +56,7 @@ enum SubscriptionStatus: string
     /**
      * Get the heroicon name for the status.
      */
-    public function icon(): string
+    public function getIcon(): string|null
     {
         return match ($this) {
             self::NEW           => 'heroicon-m-sparkles',

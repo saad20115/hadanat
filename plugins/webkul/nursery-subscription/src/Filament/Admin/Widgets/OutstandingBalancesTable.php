@@ -17,6 +17,8 @@ use Webkul\NurserySubscription\Services\PricingAndLifecycleService;
 
 class OutstandingBalancesTable extends BaseWidget
 {
+    protected static bool $isDiscovered = false;
+
     protected static ?string $heading = 'تقرير الذمم والمبالغ المتبقية للتحصيل';
 
     protected static ?int $sort = 4;

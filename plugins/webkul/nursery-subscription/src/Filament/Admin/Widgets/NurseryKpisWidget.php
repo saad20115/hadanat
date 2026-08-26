@@ -14,6 +14,8 @@ use Webkul\Support\Services\CompanyContext;
 
 class NurseryKpisWidget extends StatsOverviewWidget
 {
+    protected static bool $isDiscovered = false;
+
     protected static ?int $sort = 1;
 
     protected int|string|array $columnSpan = 'full';

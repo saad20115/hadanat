@@ -13,6 +13,8 @@ use Webkul\NurserySubscription\Services\PricingAndLifecycleService;
 
 class ExpiringSubscriptionsTable extends BaseWidget
 {
+    protected static bool $isDiscovered = false;
+
     protected static ?string $heading = 'اشتراكات تنتهي قريباً (تنبيهات المتابعة والتجديد)';
 
     protected static ?int $sort = 3;
