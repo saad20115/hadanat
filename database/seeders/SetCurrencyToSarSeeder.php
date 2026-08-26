@@ -13,27 +13,24 @@ class SetCurrencyToSarSeeder extends Seeder
     public function run(): void
     {
         // 1. Find or create Saudi Riyal (SAR / ر.س)
-        $sar = Currency::where('code', 'SAR')
-            ->orWhere('name', 'SAR')
+        $sar = Currency::where('name', 'SAR')
             ->orWhere('symbol', 'ر.س')
             ->orWhere('symbol', 'SAR')
             ->first();
 
         if (! $sar) {
             $sar = Currency::create([
-                'name'             => 'SAR',
-                'code'             => 'SAR',
-                'symbol'           => 'ر.س',
-                'currency_unit'    => 'ريال',
-                'currency_subunit' => 'هللة',
-                'decimal_places'   => 2,
-                'active'           => true,
+                'name'           => 'SAR',
+                'symbol'         => 'ر.س',
+                'full_name'      => 'Saudi Riyal',
+                'iso_numeric'    => 682,
+                'decimal_places' => 2,
+                'rounding'       => 0.00,
+                'active'         => true,
             ]);
         } else {
             $sar->active = true;
             $sar->symbol = 'ر.س';
-            $sar->currency_unit = 'ريال';
-            $sar->currency_subunit = 'هللة';
             $sar->save();
         }
 

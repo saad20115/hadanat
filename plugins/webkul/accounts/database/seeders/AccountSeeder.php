@@ -23,24 +23,24 @@ class AccountSeeder extends Seeder
 
         $user = User::first();
 
-        $currency = Currency::where('code', 'SAR')
-            ->orWhere('name', 'SAR')
+        $currency = Currency::where('name', 'SAR')
             ->orWhere('symbol', 'ر.س')
             ->orWhere('symbol', 'SAR')
             ->first();
 
         if (! $currency) {
             $currency = Currency::create([
-                'name'             => 'SAR',
-                'code'             => 'SAR',
-                'symbol'           => 'ر.س',
-                'currency_unit'    => 'ريال',
-                'currency_subunit' => 'هللة',
-                'decimal_places'   => 2,
-                'active'           => true,
+                'name'           => 'SAR',
+                'symbol'         => 'ر.س',
+                'full_name'      => 'Saudi Riyal',
+                'iso_numeric'    => 682,
+                'decimal_places' => 2,
+                'rounding'       => 0.00,
+                'active'         => true,
             ]);
         } else {
             $currency->active = true;
+            $currency->symbol = 'ر.س';
             $currency->save();
         }
 
