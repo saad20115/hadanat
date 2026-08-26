@@ -37,12 +37,12 @@ class BaraemSetupCommand extends Command
 
         if (! DB::table('partners_partners')->where('id', 1)->exists()) {
             DB::table('partners_partners')->insert([
-                'id'         => 1,
-                'name'       => 'مدرسة العقول النامية الأهلية',
-                'email'      => 'info@hadanat.com',
+                'id'           => 1,
+                'name'         => 'مدرسة العقول النامية الأهلية',
+                'email'        => 'info@hadanat.com',
                 'account_type' => 'company',
-                'created_at' => now(),
-                'updated_at' => now(),
+                'created_at'   => now(),
+                'updated_at'   => now(),
             ]);
         }
 

@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace Webkul\NurserySubscription\Filament\Admin\Pages;
 
 use Filament\Pages\Page;
-use Illuminate\Support\Facades\Auth;
 use Webkul\NurserySubscription\Filament\Admin\Widgets\ChildrenSubscriptionSummaryWidget;
 use Webkul\NurserySubscription\Filament\Admin\Widgets\ExpiringSubscriptionsTable;
 use Webkul\NurserySubscription\Filament\Admin\Widgets\NurseryKpisWidget;

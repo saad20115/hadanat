@@ -4,9 +4,11 @@ namespace Database\Seeders;
 
 use Carbon\Carbon;
 use Illuminate\Database\Seeder;
+use Illuminate\Support\Facades\DB;
 use Webkul\NurserySubscription\Database\Seeders\PricingPlanSeeder;
 use Webkul\NurserySubscription\Enums\PaymentMethod;
 use Webkul\NurserySubscription\Enums\SubscriptionStatus;
+use Webkul\NurserySubscription\Models\AcademicTerm;
 use Webkul\NurserySubscription\Models\AcademicYear;
 use Webkul\NurserySubscription\Models\AgeStageRule;
 use Webkul\NurserySubscription\Models\Child;
@@ -18,8 +20,8 @@ class NurseryDemoDataSeeder extends Seeder
 {
     public function run(): void
     {
-        $companyId = \Illuminate\Support\Facades\DB::table('companies')->value('id') ?? 1;
-        $creatorId = \Illuminate\Support\Facades\DB::table('users')->value('id');
+        $companyId = DB::table('companies')->value('id') ?? 1;
+        $creatorId = DB::table('users')->value('id');
 
         // 1. Seed Pricing Plans if none exist
         if (PricingPlan::where('company_id', $companyId)->count() === 0) {
@@ -38,7 +40,7 @@ class NurseryDemoDataSeeder extends Seeder
             ]
         );
 
-        \Webkul\NurserySubscription\Models\AcademicTerm::firstOrCreate(
+        AcademicTerm::firstOrCreate(
             ['name' => 'الفصل الدراسي الأول', 'academic_year_id' => $academicYear->id],
             [
                 'start_date' => '2025-08-30',
@@ -48,7 +50,7 @@ class NurseryDemoDataSeeder extends Seeder
             ]
         );
 
-        \Webkul\NurserySubscription\Models\AcademicTerm::firstOrCreate(
+        AcademicTerm::firstOrCreate(
             ['name' => 'الفصل الدراسي الثاني', 'academic_year_id' => $academicYear->id],
             [
                 'start_date' => '2026-01-17',

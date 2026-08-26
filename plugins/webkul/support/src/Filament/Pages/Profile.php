@@ -25,6 +25,8 @@ use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Validation\Rules\Password;
 use Illuminate\Validation\ValidationException;
+use Webkul\Employee\Models\Employee;
+use Webkul\Partner\Models\Partner;
 use Webkul\Support\Filament\Clusters\Settings;
 
 class Profile extends Page implements HasForms
@@ -48,7 +50,7 @@ class Profile extends Page implements HasForms
         $user = $this->getUser();
 
         if (! $user->partner_id || ! $user->partner) {
-            $partner = \Webkul\Partner\Models\Partner::create([
+            $partner = Partner::create([
                 'name'         => $user->name,
                 'email'        => $user->email,
                 'account_type' => 'individual',
@@ -224,7 +226,7 @@ class Profile extends Page implements HasForms
                 }
 
                 if (! $user->partner) {
-                    $partner = \Webkul\Partner\Models\Partner::create([
+                    $partner = Partner::create([
                         'name'         => $user->name,
                         'email'        => $user->email,
                         'avatar'       => $newAvatar,
@@ -242,7 +244,7 @@ class Profile extends Page implements HasForms
 
                 // Synchronize partner with employee record if exists
                 if ($user->partner_id) {
-                    \Webkul\Employee\Models\Employee::where('user_id', $user->id)->update([
+                    Employee::where('user_id', $user->id)->update([
                         'partner_id' => $user->partner_id,
                     ]);
                 }

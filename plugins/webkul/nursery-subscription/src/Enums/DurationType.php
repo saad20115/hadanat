@@ -36,6 +36,11 @@ enum DurationType: string implements HasColor, HasLabel
         };
     }
 
+    public function label(): string
+    {
+        return $this->getLabel();
+    }
+
     /**
      * Get the Filament badge color.
      */

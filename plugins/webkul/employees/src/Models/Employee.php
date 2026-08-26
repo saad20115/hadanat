@@ -291,6 +291,7 @@ class Employee extends Model
     {
         if (! $employee->partner_id) {
             $this->handlePartnerCreation($employee);
+
             return;
         }
 

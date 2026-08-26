@@ -37,6 +37,11 @@ enum SubscriptionStatus: string implements HasColor, HasIcon, HasLabel
         };
     }
 
+    public function label(): string
+    {
+        return $this->getLabel();
+    }
+
     /**
      * Get the Filament badge color.
      */
@@ -56,7 +61,7 @@ enum SubscriptionStatus: string implements HasColor, HasIcon, HasLabel
     /**
      * Get the heroicon name for the status.
      */
-    public function getIcon(): string|null
+    public function getIcon(): ?string
     {
         return match ($this) {
             self::NEW           => 'heroicon-m-sparkles',

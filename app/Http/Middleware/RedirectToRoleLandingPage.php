@@ -3,6 +3,7 @@
 namespace App\Http\Middleware;
 
 use Closure;
+use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Webkul\Security\Models\Role;
@@ -22,7 +23,7 @@ class RedirectToRoleLandingPage
                 $targetPath = trim(parse_url($targetUrl, PHP_URL_PATH) ?? '', '/');
 
                 if ($targetPath !== '' && $targetPath !== 'admin') {
-                    return new \Illuminate\Http\RedirectResponse($targetUrl);
+                    return new RedirectResponse($targetUrl);
                 }
             }
         }

@@ -15,12 +15,12 @@ class DemoUsersSeeder extends Seeder
 
         if (! DB::table('partners_partners')->where('id', 1)->exists()) {
             DB::table('partners_partners')->insert([
-                'id'         => 1,
-                'name'       => 'مدرسة العقول النامية الأهلية',
-                'email'      => 'info@hadanat.com',
+                'id'           => 1,
+                'name'         => 'مدرسة العقول النامية الأهلية',
+                'email'        => 'info@hadanat.com',
                 'account_type' => 'company',
-                'created_at' => now(),
-                'updated_at' => now(),
+                'created_at'   => now(),
+                'updated_at'   => now(),
             ]);
         }
 
@@ -83,7 +83,7 @@ class DemoUsersSeeder extends Seeder
             // Delete duplicate roles (Title Case aliases like "Nursery Manager")
             $titleCase = ucwords(str_replace('_', ' ', $roleName));
             $aliasRole = Role::whereRaw("LOWER(REPLACE(name, ' ', '_')) = ?", [strtolower($roleName)])
-                ->whereRaw("LOWER(name) != ?", [strtolower($roleName)])
+                ->whereRaw('LOWER(name) != ?', [strtolower($roleName)])
                 ->first();
 
             if ($aliasRole) {

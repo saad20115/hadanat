@@ -4,7 +4,6 @@ namespace Database\Seeders;
 
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Hash;
 use Spatie\Permission\Models\Role;
 use Webkul\Security\Models\User;
 
@@ -18,12 +17,12 @@ class AdminUserSeeder extends Seeder
         // 2. Ensure Partner 1 exists
         if (! DB::table('partners_partners')->where('id', 1)->exists()) {
             DB::table('partners_partners')->insert([
-                'id'         => 1,
-                'name'       => 'مدرسة العقول النامية الأهلية',
-                'email'      => 'info@hadanat.com',
+                'id'           => 1,
+                'name'         => 'مدرسة العقول النامية الأهلية',
+                'email'        => 'info@hadanat.com',
                 'account_type' => 'company',
-                'created_at' => now(),
-                'updated_at' => now(),
+                'created_at'   => now(),
+                'updated_at'   => now(),
             ]);
         }
 

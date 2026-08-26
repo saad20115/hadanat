@@ -28,4 +28,9 @@ enum PaymentMethod: string implements HasLabel
             self::OTHER         => 'أخرى',
         };
     }
+
+    public function label(): string
+    {
+        return $this->getLabel();
+    }
 }

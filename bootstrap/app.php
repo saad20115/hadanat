@@ -8,10 +8,13 @@ use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Foundation\Application;
 use Illuminate\Foundation\Configuration\Exceptions;
 use Illuminate\Foundation\Configuration\Middleware;
+use Illuminate\Http\RedirectResponse;
 use Illuminate\Validation\ValidationException;
 use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
+use Symfony\Component\HttpKernel\Exception\HttpException;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 use Webkul\Account\Exceptions\MissingJournalException;
+use Webkul\Security\Models\Role;
 
 return Application::configure(basePath: dirname(__DIR__))
     ->withRouting(
@@ -70,9 +73,9 @@ return Application::configure(basePath: dirname(__DIR__))
             }
 
             if (auth()->check()) {
-                $landing = \Webkul\Security\Models\Role::getLandingPageForUser(auth()->user());
+                $landing = Role::getLandingPageForUser(auth()->user());
                 $landingPath = parse_url($landing, PHP_URL_PATH) ?? $landing;
-                $currentPath = '/' . ltrim($request->path(), '/');
+                $currentPath = '/'.ltrim($request->path(), '/');
 
                 if ($landingPath && $currentPath !== $landingPath && ! $request->is(trim($landingPath, '/'))) {
                     // Only show notification if user attempted to access an actual forbidden page, not the generic root /admin
@@ -84,7 +87,7 @@ return Application::configure(basePath: dirname(__DIR__))
                             ->send();
                     }
 
-                    return new \Illuminate\Http\RedirectResponse($landing);
+                    return new RedirectResponse($landing);
                 }
             }
 
@@ -99,7 +102,7 @@ return Application::configure(basePath: dirname(__DIR__))
             return $handleForbidden($e, $request);
         });
 
-        $exceptions->render(function (\Symfony\Component\HttpKernel\Exception\HttpException $e, $request) use ($handleForbidden) {
+        $exceptions->render(function (HttpException $e, $request) use ($handleForbidden) {
             if ($e->getStatusCode() === 403) {
                 return $handleForbidden($e, $request);
             }

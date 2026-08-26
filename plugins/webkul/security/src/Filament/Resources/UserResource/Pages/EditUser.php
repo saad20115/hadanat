@@ -12,6 +12,7 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Validation\Rules\Password;
 use Illuminate\Validation\ValidationException;
+use Webkul\Partner\Models\Partner;
 use Webkul\Security\Enums\PermissionType;
 use Webkul\Security\Filament\Resources\UserResource;
 use Webkul\Security\Models\User;
@@ -82,12 +83,12 @@ class EditUser extends EditRecord
         ];
     }
 
-    public function mount(int | string $record): void
+    public function mount(int|string $record): void
     {
         $this->record = $this->resolveRecord($record);
 
         if (! $this->record->partner_id || ! $this->record->partner) {
-            $partner = \Webkul\Partner\Models\Partner::create([
+            $partner = Partner::create([
                 'name'         => $this->record->name,
                 'email'        => $this->record->email,
                 'account_type' => 'individual',
@@ -106,7 +107,7 @@ class EditUser extends EditRecord
     protected function beforeSave(): void
     {
         if (! $this->record->partner_id || ! $this->record->partner) {
-            $partner = \Webkul\Partner\Models\Partner::create([
+            $partner = Partner::create([
                 'name'         => $this->record->name,
                 'email'        => $this->record->email,
                 'account_type' => 'individual',
