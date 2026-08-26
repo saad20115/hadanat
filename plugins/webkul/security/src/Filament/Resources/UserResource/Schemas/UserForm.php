@@ -129,7 +129,7 @@ class UserForm
                         Group::make()
                             ->schema([
                                 Section::make(__('security::filament/resources/user.form.sections.avatar.title'))
-                                    ->relationship('partner', 'avatar')
+                                    ->relationship('partner')
                                     ->schema([
                                         FileUpload::make('avatar')
                                             ->hiddenLabel()

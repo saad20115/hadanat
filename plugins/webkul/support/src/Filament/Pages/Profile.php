@@ -216,9 +216,17 @@ class Profile extends Page implements HasForms
                     ]);
                     $user->partner_id = $partner->id;
                     $user->save();
+                    $user->refresh();
                 } else {
                     $user->partner->avatar = $data['avatar'];
                     $user->partner->save();
+                }
+
+                // Synchronize partner with employee record if exists
+                if ($user->partner_id) {
+                    \Webkul\Employee\Models\Employee::where('user_id', $user->id)->update([
+                        'partner_id' => $user->partner_id,
+                    ]);
                 }
             }
 

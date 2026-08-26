@@ -42,6 +42,26 @@ class EditEmployee extends EditRecord
         return ActivityPlan::employees()->pluck('name', 'id');
     }
 
+    public function mount(int | string $record): void
+    {
+        parent::mount($record);
+
+        if (! $this->record->partner_id || ! $this->record->partner) {
+            $partner = \Webkul\Partner\Models\Partner::create([
+                'name'         => $this->record->name,
+                'email'        => $this->record->work_email ?? $this->record->private_email,
+                'account_type' => 'individual',
+                'sub_type'     => 'employee',
+                'company_id'   => $this->record->company_id ?? 1,
+                'creator_id'   => \Illuminate\Support\Facades\Auth::id(),
+            ]);
+
+            $this->record->partner_id = $partner->id;
+            $this->record->saveQuietly();
+            $this->record->refresh();
+        }
+    }
+
     protected function beforeSave(): void
     {
         if (! $this->record->partner_id || ! $this->record->partner) {
@@ -49,6 +69,7 @@ class EditEmployee extends EditRecord
                 'name'         => $this->record->name,
                 'email'        => $this->record->work_email ?? $this->record->private_email,
                 'account_type' => 'individual',
+                'sub_type'     => 'employee',
                 'company_id'   => $this->record->company_id ?? 1,
                 'creator_id'   => \Illuminate\Support\Facades\Auth::id(),
             ]);

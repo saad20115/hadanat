@@ -256,9 +256,19 @@ class Employee extends Model
         });
     }
 
+    public function getAvatarAttribute(): ?string
+    {
+        return $this->partner?->avatar;
+    }
+
+    public function getAvatarUrlAttribute(): ?string
+    {
+        return $this->partner?->avatar_url;
+    }
+
     private function handlePartnerCreation(self $employee): void
     {
-        $partner = $employee->partner()->create([
+        $partner = Partner::create([
             'account_type' => 'individual',
             'sub_type'     => 'employee',
             'creator_id'   => $employee->creator_id ?? Auth::id(),
@@ -274,32 +284,26 @@ class Employee extends Model
         ]);
 
         $employee->partner_id = $partner->id;
-        $employee->save();
+        $employee->saveQuietly();
     }
 
     private function handlePartnerUpdation(self $employee): void
     {
-        $partner = Partner::updateOrCreate(
-            ['id' => $employee->partner_id],
-            [
-                'account_type' => 'individual',
-                'sub_type'     => 'employee',
-                'creator_id'   => $employee->creator_id ?? Auth::id(),
-                'name'         => $employee?->name,
-                'email'        => $employee?->work_email ?? $employee?->private_email,
-                'job_title'    => $employee?->job_title,
-                'phone'        => $employee?->work_phone,
-                'mobile'       => $employee?->mobile_phone,
-                'color'        => $employee?->color,
-                'parent_id'    => $employee?->parent_id,
-                'company_id'   => $employee?->company_id,
-                'user_id'      => $employee?->user_id,
-            ]
-        );
-
-        if ($employee->partner_id !== $partner->id) {
-            $employee->partner_id = $partner->id;
-            $employee->save();
+        if (! $employee->partner_id) {
+            $this->handlePartnerCreation($employee);
+            return;
         }
+
+        Partner::where('id', $employee->partner_id)->update([
+            'name'       => $employee?->name,
+            'email'      => $employee?->work_email ?? $employee?->private_email,
+            'job_title'  => $employee?->job_title,
+            'phone'      => $employee?->work_phone,
+            'mobile'     => $employee?->mobile_phone,
+            'color'      => $employee?->color,
+            'parent_id'  => $employee?->parent_id,
+            'company_id' => $employee?->company_id,
+            'user_id'    => $employee?->user_id,
+        ]);
     }
 }

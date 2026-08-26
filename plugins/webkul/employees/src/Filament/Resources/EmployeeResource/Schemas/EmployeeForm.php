@@ -62,7 +62,7 @@ class EmployeeForm
 
                                     ]),
                                 Group::make()
-                                    ->relationship('partner', 'avatar')
+                                    ->relationship('partner')
                                     ->schema([
                                         FileUpload::make('avatar')
                                             ->image()
