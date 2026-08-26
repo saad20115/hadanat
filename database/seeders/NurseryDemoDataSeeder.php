@@ -269,7 +269,7 @@ class NurseryDemoDataSeeder extends Seeder
             ['subscription_id' => $sub2->id, 'reference_number' => 'TRF-554210'],
             [
                 'amount'         => $sub2Net,
-                'payment_method' => PaymentMethod::TRANSFER,
+                'payment_method' => PaymentMethod::BANK_TRANSFER,
                 'payment_date'   => Carbon::now()->startOfMonth()->format('Y-m-d'),
                 'notes'          => 'تحويل بنكي من حساب ولي الأمر (مصرف الراجحي).',
                 'company_id'     => $companyId,
@@ -373,7 +373,7 @@ class NurseryDemoDataSeeder extends Seeder
             ['subscription_id' => $sub5->id, 'reference_number' => 'TRF-330192'],
             [
                 'amount'         => $sub5Price,
-                'payment_method' => PaymentMethod::TRANSFER,
+                'payment_method' => PaymentMethod::BANK_TRANSFER,
                 'payment_date'   => Carbon::now()->subMonths(2)->format('Y-m-d'),
                 'notes'          => 'سداد الاشتراك المنتهي بحوالة بنكية.',
                 'company_id'     => $companyId,
